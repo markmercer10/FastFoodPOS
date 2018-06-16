@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{3D1F6610-A1F2-45B7-81EB-8B966560A99A}#1.0#0"; "GraphicalButton.ocx"
 Object = "{5E9E78A0-531B-11CF-91F6-C2863C385E30}#1.0#0"; "MSFLXGRD.OCX"
 Begin VB.Form frmMain 
    Appearance      =   0  'Flat
@@ -8,7 +7,7 @@ Begin VB.Form frmMain
    Caption         =   "Form1"
    ClientHeight    =   10785
    ClientLeft      =   150
-   ClientTop       =   780
+   ClientTop       =   795
    ClientWidth     =   17850
    LinkTopic       =   "Form1"
    ScaleHeight     =   10785
@@ -19,14 +18,14 @@ Begin VB.Form frmMain
       Caption         =   "Command1"
       Height          =   615
       Left            =   6480
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   3480
       Width           =   1095
    End
    Begin MSFlexGridLib.MSFlexGrid MSFlexGrid1 
       Height          =   8655
       Left            =   12960
-      TabIndex        =   3
+      TabIndex        =   2
       Top             =   1920
       Width           =   4695
       _ExtentX        =   8281
@@ -41,7 +40,7 @@ Begin VB.Form frmMain
       Height          =   4455
       Left            =   6840
       MultiLine       =   -1  'True
-      TabIndex        =   2
+      TabIndex        =   1
       Text            =   "frmMain.frx":0000
       Top             =   6120
       Visible         =   0   'False
@@ -55,7 +54,7 @@ Begin VB.Form frmMain
       Left            =   0
       ScaleHeight     =   1665
       ScaleWidth      =   16185
-      TabIndex        =   1
+      TabIndex        =   0
       Top             =   0
       Width           =   16215
    End
@@ -63,20 +62,6 @@ Begin VB.Form frmMain
       Interval        =   500
       Left            =   16440
       Top             =   240
-   End
-   Begin ProjGraphicalButton.GraphicalButton GraphicalButton1 
-      Height          =   2415
-      Left            =   960
-      TabIndex        =   0
-      Top             =   1920
-      Width           =   2535
-      _ExtentX        =   4471
-      _ExtentY        =   4260
-      BackColor       =   0
-      Picture         =   "frmMain.frx":0006
-      Margin          =   100
-      MaskColor       =   4210752
-      ClickColor      =   8421504
    End
    Begin VB.Menu mnuFile 
       Caption         =   "File"

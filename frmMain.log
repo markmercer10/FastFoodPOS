@@ -1,0 +1,7 @@
+Line 67: Class ProjGraphicalButton.GraphicalButton of control GraphicalButton1 was not a loaded control class.
+Line 73: The property name _ExtentX in GraphicalButton1 is invalid.
+Line 74: The property name _ExtentY in GraphicalButton1 is invalid.
+Line 77: The property name Margin in GraphicalButton1 is invalid.
+Line 78: The property name MaskColor in GraphicalButton1 is invalid.
+Line 79: The property name ClickColor in GraphicalButton1 is invalid.
+Line 67: Property Picture in GraphicalButton1 could not be set.
