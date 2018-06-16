@@ -13,13 +13,22 @@ Begin VB.Form frmMenuEditor
    ScaleHeight     =   8715
    ScaleWidth      =   12825
    StartUpPosition =   3  'Windows Default
-   Begin VB.CommandButton Command2 
-      Caption         =   "Command2"
-      Height          =   1215
-      Left            =   11520
+   Begin VB.TextBox CellEdit 
+      Appearance      =   0  'Flat
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   12
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   375
+      Left            =   11280
       TabIndex        =   2
-      Top             =   1920
-      Width           =   495
+      Top             =   2520
+      Width           =   1455
    End
    Begin MSComctlLib.ListView MenuList 
       Height          =   8655
@@ -32,6 +41,7 @@ Begin VB.Form frmMenuEditor
       View            =   3
       LabelWrap       =   -1  'True
       HideSelection   =   0   'False
+      FullRowSelect   =   -1  'True
       GridLines       =   -1  'True
       _Version        =   393217
       ForeColor       =   -2147483640
@@ -40,7 +50,7 @@ Begin VB.Form frmMenuEditor
       Appearance      =   0
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   12
+         Size            =   14.25
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -90,26 +100,43 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Dim indexDrag As Long
+Dim columnClicked As Byte
+Dim ItemHeight As Long
+
+Private Sub CellEdit_KeyPress(KeyAscii As Integer)
+    If KeyAscii = 13 Then
+        WriteCell indexDrag, columnClicked, CellEdit.Text
+        CellEdit.Visible = False
+    End If
+End Sub
+
+Private Sub CellEdit_LostFocus()
+    CellEdit.Visible = False
+End Sub
 
 Private Sub Command1_Click()
     Dim i As Long
     Dim li As ListItem
     For i = 1 To 20
         Set li = MenuList.ListItems.Add(, , "Menu Item " & i)
-        li.SubItems(4) = i
+        li.SubItems(3) = i
         'MenuList.List(
     Next i
     Set li = Nothing
 End Sub
 
+Private Sub MenuList_DblClick()
+    OpenCellEditor indexDrag, columnClicked
+End Sub
+
 Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    'this sets the indexDrag to the current index
     If Not MenuList.SelectedItem Is Nothing Then
         indexDrag = GetClickedIndex(Y)
     End If
 End Sub
  
 Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    columnClicked = GetClickedColumn(X)
     If Not MenuList.SelectedItem Is Nothing Then
         Dim indexDragTo As Long
         indexDragTo = GetClickedIndex(Y)
@@ -138,9 +165,43 @@ End Function
 
 Private Function GetClickedIndex(ByVal Y As Long) As Long
     Dim HeaderExtraHeight As Long
-    Dim ItemHeight As Long
     ItemHeight = MenuList.ListItems.Item(1).Height
     HeaderExtraHeight = ItemHeight * 0.15
-
     GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (Y - HeaderExtraHeight) / ItemHeight)
 End Function
+
+Private Function GetClickedColumn(ByVal X As Long) As Long
+    Dim i As Long
+    GetClickedColumn = 0
+    For i = 1 To MenuList.ColumnHeaders.Count
+        X = X - MenuList.ColumnHeaders(i).Width
+        If X <= 0 Then
+            GetClickedColumn = i
+            Exit For
+        End If
+    Next i
+End Function
+
+Private Sub OpenCellEditor(ByVal row As Long, ByVal col As Byte)
+    If columnClicked = 0 Or row = 0 Then Exit Sub
+    CellEdit.Top = MenuList.ListItems(row).Top
+    CellEdit.Left = MenuList.ColumnHeaders(col).Left + 30
+    CellEdit.Width = MenuList.ColumnHeaders(col).Width
+    If col = 1 Then
+        CellEdit.Text = MenuList.ListItems(row).Text
+    Else
+        CellEdit.Text = MenuList.ListItems(row).SubItems(col - 1)
+    End If
+    CellEdit.Visible = True
+    CellEdit.SetFocus
+    CellEdit.SelStart = 0
+    CellEdit.SelLength = Len(CellEdit)
+End Sub
+
+Private Sub WriteCell(ByVal row As Long, ByVal col As Byte, ByVal value As String)
+    If col = 1 Then
+        MenuList.ListItems(row).Text = value
+    Else
+        MenuList.ListItems(row).SubItems(col - 1) = value
+    End If
+End Sub
