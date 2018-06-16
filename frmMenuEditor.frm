@@ -13,6 +13,27 @@ Begin VB.Form frmMenuEditor
    ScaleHeight     =   8715
    ScaleWidth      =   12825
    StartUpPosition =   3  'Windows Default
+   Begin VB.TextBox Ghost 
+      Appearance      =   0  'Flat
+      BackColor       =   &H00FFC0C0&
+      ForeColor       =   &H00404040&
+      Height          =   375
+      Left            =   0
+      TabIndex        =   4
+      Top             =   1560
+      Visible         =   0   'False
+      Width           =   11175
+   End
+   Begin VB.PictureBox HR 
+      Height          =   60
+      Left            =   120
+      ScaleHeight     =   0
+      ScaleWidth      =   10875
+      TabIndex        =   3
+      Top             =   1440
+      Visible         =   0   'False
+      Width           =   10935
+   End
    Begin VB.TextBox CellEdit 
       Appearance      =   0  'Flat
       BeginProperty Font 
@@ -118,30 +139,51 @@ Private Sub Command1_Click()
     Dim i As Long
     Dim li As ListItem
     For i = 1 To 20
-        Set li = MenuList.ListItems.Add(, , "Menu Item " & i)
+        If (i - 1) Mod 5 = 0 Then
+            Set li = MenuList.ListItems.Add(, , "Heading")
+            li.Tag = "Heading"
+        End If
+        Set li = MenuList.ListItems.Add(, , "--Menu Item " & i)
         li.SubItems(3) = i
         'MenuList.List(
     Next i
     Set li = Nothing
 End Sub
 
+Private Sub Form_Load()
+    Ghost.FontName = MenuList.Font.Name
+    Ghost.FontSize = MenuList.Font.Size
+End Sub
+
 Private Sub MenuList_DblClick()
     OpenCellEditor indexDrag, columnClicked
 End Sub
 
-Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Not MenuList.SelectedItem Is Nothing Then
-        indexDrag = GetClickedIndex(Y)
+        indexDrag = GetClickedIndex(y)
     End If
 End Sub
  
-Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    columnClicked = GetClickedColumn(X)
+Private Sub MenuList_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+    If Button <> 0 Then
+        HR.Top = MenuList.ListItems(GetClickedIndex(y)).Top
+        Ghost.Text = MenuList.ListItems(indexDrag).Text
+        Ghost.Top = y + Ghost.Height / 2
+        HR.Visible = True
+        Ghost.Visible = True
+    End If
+End Sub
+
+Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    columnClicked = GetClickedColumn(x)
     If Not MenuList.SelectedItem Is Nothing Then
         Dim indexDragTo As Long
-        indexDragTo = GetClickedIndex(Y)
+        indexDragTo = GetClickedIndex(y)
         If Not indexDragTo = indexDrag Then SwapItems indexDrag, indexDragTo
     End If
+    HR.Visible = False
+    Ghost.Visible = False
 End Sub
 
 Private Function SwapItems(ByVal Item1 As Long, ByVal Item2 As Long)
@@ -163,19 +205,19 @@ Private Function SwapItems(ByVal Item1 As Long, ByVal Item2 As Long)
     Set si = Nothing
 End Function
 
-Private Function GetClickedIndex(ByVal Y As Long) As Long
+Private Function GetClickedIndex(ByVal y As Long) As Long
     Dim HeaderExtraHeight As Long
     ItemHeight = MenuList.ListItems.Item(1).Height
     HeaderExtraHeight = ItemHeight * 0.15
-    GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (Y - HeaderExtraHeight) / ItemHeight)
+    GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (y - HeaderExtraHeight) / ItemHeight)
 End Function
 
-Private Function GetClickedColumn(ByVal X As Long) As Long
+Private Function GetClickedColumn(ByVal x As Long) As Long
     Dim i As Long
     GetClickedColumn = 0
     For i = 1 To MenuList.ColumnHeaders.Count
-        X = X - MenuList.ColumnHeaders(i).Width
-        If X <= 0 Then
+        x = x - MenuList.ColumnHeaders(i).Width
+        If x <= 0 Then
             GetClickedColumn = i
             Exit For
         End If
@@ -183,7 +225,7 @@ Private Function GetClickedColumn(ByVal X As Long) As Long
 End Function
 
 Private Sub OpenCellEditor(ByVal row As Long, ByVal col As Byte)
-    If columnClicked = 0 Or row = 0 Then Exit Sub
+    If columnClicked = 0 Or row = 0 Or row > MenuList.ListItems.Count Then Exit Sub
     CellEdit.Top = MenuList.ListItems(row).Top
     CellEdit.Left = MenuList.ColumnHeaders(col).Left + 30
     CellEdit.Width = MenuList.ColumnHeaders(col).Width
