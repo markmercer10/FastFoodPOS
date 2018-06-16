@@ -59,6 +59,7 @@ Begin VB.Form frmMain
       Width           =   16215
    End
    Begin VB.Timer Timer1 
+      Enabled         =   0   'False
       Interval        =   500
       Left            =   16440
       Top             =   240
@@ -71,8 +72,8 @@ Begin VB.Form frmMain
       Begin VB.Menu mnuEditMenu 
          Caption         =   "Menu"
       End
-      Begin VB.Menu mnuEditDisplay 
-         Caption         =   "Display"
+      Begin VB.Menu mnuEditDisplays 
+         Caption         =   "Displays"
       End
    End
    Begin VB.Menu mnuDisplay 
@@ -168,6 +169,10 @@ End Sub
 
 Private Sub Header_KeyDown(KeyCode As Integer, Shift As Integer)
     If KeyCode = 27 Then Unload Me
+End Sub
+
+Private Sub mnuEditMenu_Click()
+    frmMenuEditor.Show 1
 End Sub
 
 Private Sub Timer1_Timer()
