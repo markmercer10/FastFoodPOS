@@ -14,14 +14,6 @@ Begin VB.Form frmMain
    ScaleWidth      =   17850
    ShowInTaskbar   =   0   'False
    StartUpPosition =   3  'Windows Default
-   Begin VB.CommandButton Command1 
-      Caption         =   "Command1"
-      Height          =   615
-      Left            =   6480
-      TabIndex        =   3
-      Top             =   3480
-      Width           =   1095
-   End
    Begin MSFlexGridLib.MSFlexGrid MSFlexGrid1 
       Height          =   8655
       Left            =   12960
@@ -165,6 +157,10 @@ End Sub
 
 Private Sub GraphicalButton1_Click()
     Text1.Text = Text1.Text & vbCrLf & "Click    "
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    Unload frmMenuEditor
 End Sub
 
 Private Sub Header_KeyDown(KeyCode As Integer, Shift As Integer)
