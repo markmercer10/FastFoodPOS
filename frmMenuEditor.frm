@@ -123,7 +123,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-
+'Menu Editor
 Dim indexDrag As Long
 Dim columnClicked As Byte
 Dim ItemHeight As Long
