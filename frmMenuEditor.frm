@@ -17,7 +17,7 @@ Begin VB.Form frmMenuEditor
    Begin VB.ListBox deletedSections 
       Height          =   840
       Left            =   480
-      TabIndex        =   12
+      TabIndex        =   11
       Top             =   5160
       Visible         =   0   'False
       Width           =   4335
@@ -25,7 +25,7 @@ Begin VB.Form frmMenuEditor
    Begin VB.ListBox deletedItems 
       Height          =   840
       Left            =   480
-      TabIndex        =   11
+      TabIndex        =   10
       Top             =   6120
       Visible         =   0   'False
       Width           =   4335
@@ -46,8 +46,8 @@ Begin VB.Form frmMenuEditor
       Left            =   11280
       MaskColor       =   &H00E0E0E0&
       Style           =   1  'Graphical
-      TabIndex        =   10
-      Top             =   4200
+      TabIndex        =   9
+      Top             =   6360
       Width           =   1695
    End
    Begin VB.CommandButton ButnSave 
@@ -66,8 +66,8 @@ Begin VB.Form frmMenuEditor
       Left            =   11280
       MaskColor       =   &H00E0E0E0&
       Style           =   1  'Graphical
-      TabIndex        =   9
-      Top             =   5400
+      TabIndex        =   8
+      Top             =   7560
       Width           =   1695
    End
    Begin VB.CommandButton ButnDeleteItem 
@@ -87,7 +87,7 @@ Begin VB.Form frmMenuEditor
       Left            =   11280
       MaskColor       =   &H00E0E0E0&
       Style           =   1  'Graphical
-      TabIndex        =   8
+      TabIndex        =   7
       Top             =   2040
       Width           =   1695
    End
@@ -108,7 +108,7 @@ Begin VB.Form frmMenuEditor
       Left            =   11280
       MaskColor       =   &H00E0E0E0&
       Style           =   1  'Graphical
-      TabIndex        =   7
+      TabIndex        =   6
       Top             =   720
       Width           =   1695
    End
@@ -129,7 +129,7 @@ Begin VB.Form frmMenuEditor
       Left            =   11280
       MaskColor       =   &H00E0E0E0&
       Style           =   1  'Graphical
-      TabIndex        =   6
+      TabIndex        =   5
       Top             =   1440
       Width           =   1695
    End
@@ -149,7 +149,7 @@ Begin VB.Form frmMenuEditor
       Left            =   11280
       MaskColor       =   &H00E0E0E0&
       Style           =   1  'Graphical
-      TabIndex        =   5
+      TabIndex        =   4
       Top             =   120
       Width           =   1695
    End
@@ -159,7 +159,7 @@ Begin VB.Form frmMenuEditor
       ForeColor       =   &H00404040&
       Height          =   375
       Left            =   0
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   1560
       Visible         =   0   'False
       Width           =   11175
@@ -173,7 +173,7 @@ Begin VB.Form frmMenuEditor
       Left            =   120
       ScaleHeight     =   45
       ScaleWidth      =   10935
-      TabIndex        =   3
+      TabIndex        =   2
       Top             =   1440
       Visible         =   0   'False
       Width           =   10935
@@ -192,7 +192,7 @@ Begin VB.Form frmMenuEditor
       EndProperty
       Height          =   375
       Left            =   9360
-      TabIndex        =   2
+      TabIndex        =   1
       Top             =   240
       Visible         =   0   'False
       Width           =   1455
@@ -200,7 +200,7 @@ Begin VB.Form frmMenuEditor
    Begin MSComctlLib.ListView MenuList 
       Height          =   8655
       Left            =   0
-      TabIndex        =   1
+      TabIndex        =   0
       Top             =   0
       Width           =   11175
       _ExtentX        =   19711
@@ -249,14 +249,6 @@ Begin VB.Form frmMenuEditor
          Text            =   "Large"
          Object.Width           =   2540
       EndProperty
-   End
-   Begin VB.CommandButton Command1 
-      Caption         =   "Command1"
-      Height          =   1695
-      Left            =   11280
-      TabIndex        =   0
-      Top             =   6960
-      Width           =   1455
    End
 End
 Attribute VB_Name = "frmMenuEditor"
@@ -341,10 +333,10 @@ Private Sub ButnSave_Click()
     Dim v As Variant
     Dim j As Long
     For i = 0 To deletedItems.ListCount - 1
-        ' Delete this item from the database.
+        Delete "menu_items", "id", CLng(val(deletedItems.List(i)))
     Next i
     For i = 0 To deletedSections.ListCount - 1
-        ' Delete this section from the database.
+        Delete "menu_sections", "id", CLng(val(deletedSections.List(i)))
     Next i
     
     For i = 1 To MenuList.ListItems.Count
@@ -354,6 +346,7 @@ Private Sub ButnSave_Click()
             f = Array("id", "title")
             v = Array(sec_id, MenuList.ListItems(i).Text)
             Upsert "menu_sections", f, v
+            If sec_id = 0 Then sec_id = QuerySectionID(MenuList.ListItems(i).Text)
         ElseIf IsItem(i) Then
             item_id = GetLineID(i)
             If item_id < 0 Then item_id = 0
@@ -376,31 +369,14 @@ Private Sub CellEdit_LostFocus()
     CellEdit.Visible = False
 End Sub
 
-Private Sub Command1_Click()
-    Dim i As Long
-    Dim li As ListItem
-    For i = 1 To 20
-        If (i - 1) Mod 5 = 0 Then
-            Set li = MenuList.ListItems.Add(, , "Section")
-            li.Tag = "Section(" & i & ")"
-        End If
-        Set li = MenuList.ListItems.Add(, , ITEM_PREFIX & "Menu Item " & i)
-        li.Tag = "Item(" & i & ")"
-        li.SubItems(Rnd * 3 + 1) = i
-    Next i
-    Set li = Nothing
-End Sub
-
 Private Sub Form_Load()
-    Randomize Timer
-    ConnectDB
     LoadMenu
     Ghost.FontName = MenuList.Font.name
     Ghost.FontSize = MenuList.Font.Size
 End Sub
 
-Private Sub HR_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    MenuList_MouseUp Button, Shift, X, HR.Top + 100
+Private Sub HR_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    MenuList_MouseUp Button, Shift, x, HR.Top + 100
     CellEdit = HR.Top
 End Sub
 
@@ -414,30 +390,30 @@ Private Sub MenuList_ItemClick(ByVal Item As MSComctlLib.ListItem)
     ButnDeleteItem.Enabled = IsItem(Item.Index)
 End Sub
 
-Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Not MenuList.SelectedItem Is Nothing Then
-        indexDrag = GetClickedIndex(Y)
+        indexDrag = GetClickedIndex(y)
         CellEdit = MenuList.ListItems(indexDrag).Tag
         If Not IsSection(indexDrag) Then dragging = True
     End If
 End Sub
  
-Private Sub MenuList_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub MenuList_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     If Button <> 0 And dragging Then
-        HR.Top = MenuList.ListItems(GetClickedIndex(Y)).Top
+        HR.Top = MenuList.ListItems(GetClickedIndex(y)).Top
         Ghost.Text = MenuList.ListItems(indexDrag).Text
-        Ghost.Top = Y + Ghost.Height / 2
+        Ghost.Top = y + Ghost.Height / 2
         HR.Visible = True
         Ghost.Visible = True
     End If
 End Sub
 
-Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    columnClicked = GetClickedColumn(X)
+Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    columnClicked = GetClickedColumn(x)
     If dragging Then
         If Not MenuList.SelectedItem Is Nothing Then
             Dim indexDragTo As Long
-            indexDragTo = GetClickedIndex(Y)
+            indexDragTo = GetClickedIndex(y)
             If Not indexDragTo = indexDrag Then MoveItem indexDrag, indexDragTo
         Else
             'maybe it drags to the bottom?
@@ -472,20 +448,20 @@ Private Function MoveItem(ByVal Item1 As Long, ByVal Item2 As Long)
     Set si = Nothing
 End Function
 
-Private Function GetClickedIndex(ByVal Y As Long) As Long
+Private Function GetClickedIndex(ByVal y As Long) As Long
     Dim HeaderExtraHeight As Long
     ItemHeight = MenuList.ListItems.Item(1).Height
     HeaderExtraHeight = ItemHeight * 0.15
-    GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (Y - HeaderExtraHeight) / ItemHeight)
+    GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (y - HeaderExtraHeight) / ItemHeight)
     If GetClickedIndex > MenuList.ListItems.Count Then GetClickedIndex = MenuList.ListItems.Count
 End Function
 
-Private Function GetClickedColumn(ByVal X As Long) As Long
+Private Function GetClickedColumn(ByVal x As Long) As Long
     Dim i As Long
     GetClickedColumn = 0
     For i = 1 To MenuList.ColumnHeaders.Count
-        X = X - MenuList.ColumnHeaders(i).Width
-        If X <= 0 Then
+        x = x - MenuList.ColumnHeaders(i).Width
+        If x <= 0 Then
             GetClickedColumn = i
             Exit For
         End If
@@ -630,3 +606,16 @@ Private Sub LoadMenu()
     Set s = Nothing
     Set i = Nothing
 End Sub
+
+Private Function QuerySectionID(ByVal Section As String) As Long
+    Dim q As ADODB.Recordset
+    QuerySectionID = -1
+    Set q = db.Execute("SELECT * FROM menu_sections WHERE Title = """ & Section & """")
+    With q
+        If Not (.EOF And .BOF) Then
+            .MoveFirst
+            QuerySectionID = !id
+        End If
+    End With
+    Set q = Nothing
+End Function

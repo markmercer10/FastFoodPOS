@@ -1,0 +1,1050 @@
+VERSION 5.00
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.2#0"; "MSCOMCTL.OCX"
+Begin VB.Form frmDisplayPanels 
+   BorderStyle     =   1  'Fixed Single
+   Caption         =   "Display Panels"
+   ClientHeight    =   8895
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   19635
+   LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
+   ScaleHeight     =   8895
+   ScaleWidth      =   19635
+   StartUpPosition =   3  'Windows Default
+   Begin VB.CommandButton ButnSave 
+      BackColor       =   &H0080FFFF&
+      Caption         =   "Save Changes"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   450
+      Left            =   11280
+      Style           =   1  'Graphical
+      TabIndex        =   43
+      Top             =   120
+      Width           =   2535
+   End
+   Begin VB.Timer DrawTimer 
+      Enabled         =   0   'False
+      Interval        =   500
+      Left            =   240
+      Top             =   840
+   End
+   Begin VB.ComboBox cboRes 
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   450
+      ItemData        =   "frmDisplayPanels.frx":0000
+      Left            =   5640
+      List            =   "frmDisplayPanels.frx":0010
+      Style           =   2  'Dropdown List
+      TabIndex        =   39
+      Top             =   120
+      Width           =   2055
+   End
+   Begin VB.PictureBox BlockBG 
+      Height          =   495
+      Left            =   16920
+      ScaleHeight     =   435
+      ScaleWidth      =   915
+      TabIndex        =   12
+      Top             =   1200
+      Visible         =   0   'False
+      Width           =   975
+   End
+   Begin VB.TextBox labColor 
+      BackColor       =   &H8000000F&
+      BorderStyle     =   0  'None
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   12
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   495
+      Left            =   14760
+      Locked          =   -1  'True
+      TabIndex        =   13
+      Text            =   "Background Color"
+      Top             =   1320
+      Visible         =   0   'False
+      Width           =   2295
+   End
+   Begin VB.Frame TabContent 
+      BorderStyle     =   0  'None
+      Height          =   6855
+      Index           =   0
+      Left            =   1200
+      TabIndex        =   9
+      Top             =   720
+      Visible         =   0   'False
+      Width           =   4935
+      Begin VB.TextBox Margin 
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   405
+         Left            =   1920
+         TabIndex        =   42
+         Text            =   "10"
+         Top             =   840
+         Width           =   975
+      End
+      Begin VB.ListBox SectionIDs 
+         Height          =   255
+         Left            =   3240
+         TabIndex        =   38
+         Top             =   480
+         Visible         =   0   'False
+         Width           =   1335
+      End
+      Begin VB.ComboBox Section 
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   390
+         Left            =   1920
+         Style           =   2  'Dropdown List
+         TabIndex        =   36
+         Top             =   240
+         Width           =   2775
+      End
+      Begin VB.PictureBox iFontColor 
+         Height          =   495
+         Left            =   1920
+         ScaleHeight     =   435
+         ScaleWidth      =   915
+         TabIndex        =   34
+         Top             =   5640
+         Width           =   975
+      End
+      Begin VB.CheckBox iFontBold 
+         Appearance      =   0  'Flat
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         ForeColor       =   &H80000008&
+         Height          =   375
+         Left            =   1920
+         TabIndex        =   33
+         Top             =   5220
+         Width           =   1215
+      End
+      Begin VB.TextBox iFontSize 
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   405
+         Left            =   1920
+         TabIndex        =   32
+         Text            =   "12"
+         Top             =   4800
+         Width           =   975
+      End
+      Begin VB.ComboBox iFont 
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   11.25
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   -1  'True
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   1920
+         Sorted          =   -1  'True
+         Style           =   2  'Dropdown List
+         TabIndex        =   27
+         Top             =   4320
+         Width           =   2775
+      End
+      Begin VB.PictureBox hFontColor 
+         Height          =   495
+         Left            =   1920
+         ScaleHeight     =   435
+         ScaleWidth      =   915
+         TabIndex        =   25
+         Top             =   3120
+         Width           =   975
+      End
+      Begin VB.CheckBox hFontBold 
+         Appearance      =   0  'Flat
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         ForeColor       =   &H80000008&
+         Height          =   375
+         Left            =   1920
+         TabIndex        =   24
+         Top             =   2700
+         Width           =   1215
+      End
+      Begin VB.TextBox hFontSize 
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   405
+         Left            =   1920
+         TabIndex        =   23
+         Text            =   "12"
+         Top             =   2280
+         Width           =   975
+      End
+      Begin VB.ComboBox hFont 
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   11.25
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   -1  'True
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   1920
+         Sorted          =   -1  'True
+         Style           =   2  'Dropdown List
+         TabIndex        =   18
+         Top             =   1800
+         Width           =   2775
+      End
+      Begin VB.Label Label15 
+         Caption         =   "Heading"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   240
+         TabIndex        =   41
+         Top             =   1320
+         Width           =   2775
+      End
+      Begin VB.Label Label13 
+         Caption         =   "Menu Section"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   240
+         TabIndex        =   35
+         Top             =   240
+         Width           =   1695
+      End
+      Begin VB.Label Label12 
+         Caption         =   "Color"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   31
+         Top             =   5760
+         Width           =   2655
+      End
+      Begin VB.Label Label11 
+         Caption         =   "Bold"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   30
+         Top             =   5280
+         Width           =   2655
+      End
+      Begin VB.Label Label10 
+         Caption         =   "Font Size"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   29
+         Top             =   4800
+         Width           =   2655
+      End
+      Begin VB.Label Label9 
+         Caption         =   "Font"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   28
+         Top             =   4320
+         Width           =   2655
+      End
+      Begin VB.Label Label8 
+         Caption         =   "Items"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   240
+         TabIndex        =   26
+         Top             =   3840
+         Width           =   2775
+      End
+      Begin VB.Label Label7 
+         Caption         =   "Color"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   22
+         Top             =   3240
+         Width           =   2655
+      End
+      Begin VB.Label Label6 
+         Caption         =   "Bold"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   21
+         Top             =   2760
+         Width           =   2655
+      End
+      Begin VB.Label Label5 
+         Caption         =   "Font Size"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   20
+         Top             =   2280
+         Width           =   2655
+      End
+      Begin VB.Label Label4 
+         Caption         =   "Font"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   840
+         TabIndex        =   19
+         Top             =   1800
+         Width           =   2655
+      End
+      Begin VB.Label Label3 
+         Caption         =   "Margin"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   375
+         Left            =   240
+         TabIndex        =   17
+         Top             =   840
+         Width           =   2775
+      End
+   End
+   Begin VB.Frame TabContent 
+      BorderStyle     =   0  'None
+      Height          =   6855
+      Index           =   1
+      Left            =   9960
+      TabIndex        =   10
+      Top             =   600
+      Visible         =   0   'False
+      Width           =   4935
+      Begin VB.PictureBox Picture1 
+         Height          =   3495
+         Left            =   120
+         ScaleHeight     =   3435
+         ScaleWidth      =   4515
+         TabIndex        =   16
+         Top             =   840
+         Width           =   4575
+      End
+      Begin VB.CommandButton butnSelectPicture 
+         Caption         =   "Select Picture"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   615
+         Left            =   120
+         TabIndex        =   15
+         Top             =   120
+         Width           =   1815
+      End
+   End
+   Begin VB.Frame TabContent 
+      BorderStyle     =   0  'None
+      Height          =   6855
+      Index           =   2
+      Left            =   14520
+      TabIndex        =   11
+      Top             =   3120
+      Visible         =   0   'False
+      Width           =   4935
+      Begin VB.Label Label2 
+         Caption         =   "This feature can be added"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   615
+         Left            =   360
+         TabIndex        =   14
+         Top             =   120
+         Width           =   3975
+      End
+   End
+   Begin MSComctlLib.TabStrip BlockOptions 
+      Height          =   8175
+      Left            =   14520
+      TabIndex        =   8
+      Top             =   600
+      Visible         =   0   'False
+      Width           =   5055
+      _ExtentX        =   8916
+      _ExtentY        =   14420
+      _Version        =   393216
+      BeginProperty Tabs {1EFB6598-857C-11D1-B16A-00C0F0283628} 
+         NumTabs         =   3
+         BeginProperty Tab1 {1EFB659A-857C-11D1-B16A-00C0F0283628} 
+            Caption         =   "Menu Section"
+            Key             =   "blockMenu"
+            ImageVarType    =   2
+         EndProperty
+         BeginProperty Tab2 {1EFB659A-857C-11D1-B16A-00C0F0283628} 
+            Caption         =   "Picture"
+            Key             =   "blockPicture"
+            ImageVarType    =   2
+         EndProperty
+         BeginProperty Tab3 {1EFB659A-857C-11D1-B16A-00C0F0283628} 
+            Caption         =   "Video"
+            Key             =   "blockVideo"
+            ImageVarType    =   2
+         EndProperty
+      EndProperty
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Arial"
+         Size            =   12
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+   End
+   Begin VB.Frame frameLayouts 
+      BackColor       =   &H00FFFFFF&
+      Caption         =   "Layouts"
+      Height          =   4215
+      Left            =   7800
+      TabIndex        =   4
+      Top             =   600
+      Visible         =   0   'False
+      Width           =   6735
+      Begin VB.PictureBox Layouts 
+         AutoRedraw      =   -1  'True
+         Height          =   2895
+         Index           =   0
+         Left            =   2400
+         ScaleHeight     =   2835
+         ScaleWidth      =   435
+         TabIndex        =   6
+         Top             =   240
+         Visible         =   0   'False
+         Width           =   495
+      End
+      Begin VB.OptionButton LayoutOptions 
+         Height          =   1095
+         Index           =   0
+         Left            =   120
+         Style           =   1  'Graphical
+         TabIndex        =   5
+         Top             =   240
+         Width           =   1935
+      End
+   End
+   Begin VB.CommandButton butnSelectLayout 
+      Caption         =   "Select Layout"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   450
+      Left            =   7800
+      TabIndex        =   3
+      Top             =   120
+      Width           =   2775
+   End
+   Begin VB.PictureBox Preview 
+      Appearance      =   0  'Flat
+      AutoRedraw      =   -1  'True
+      BackColor       =   &H00E0E0E0&
+      ForeColor       =   &H80000008&
+      Height          =   8055
+      Left            =   120
+      ScaleHeight     =   8025
+      ScaleWidth      =   14295
+      TabIndex        =   2
+      Top             =   720
+      Width           =   14320
+      Begin VB.PictureBox Blocks 
+         AutoRedraw      =   -1  'True
+         BorderStyle     =   0  'None
+         Height          =   1695
+         Index           =   0
+         Left            =   0
+         ScaleHeight     =   1695
+         ScaleWidth      =   1935
+         TabIndex        =   7
+         Top             =   0
+         Visible         =   0   'False
+         Width           =   1935
+      End
+   End
+   Begin VB.ComboBox DisplaySelect 
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   450
+      ItemData        =   "frmDisplayPanels.frx":0047
+      Left            =   1200
+      List            =   "frmDisplayPanels.frx":0051
+      Style           =   2  'Dropdown List
+      TabIndex        =   0
+      Top             =   120
+      Width           =   2775
+   End
+   Begin VB.Label Label14 
+      Caption         =   "Resolution"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   495
+      Left            =   4200
+      TabIndex        =   40
+      Top             =   120
+      Width           =   1575
+   End
+   Begin VB.Label labBlockOptions 
+      Caption         =   "Block Options"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   495
+      Left            =   14520
+      TabIndex        =   37
+      Top             =   120
+      Visible         =   0   'False
+      Width           =   3135
+   End
+   Begin VB.Label Label1 
+      Caption         =   "Display"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   14.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   495
+      Left            =   120
+      TabIndex        =   1
+      Top             =   120
+      Width           =   1575
+   End
+End
+Attribute VB_Name = "frmDisplayPanels"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Private SelectedLayout As Long
+Private SelectedBlock As Long
+Private MouseOverBlock As Long
+Private BlockSettings() As PanelBlock
+Private PreviewScale As Double
+
+Private Sub BlockBG_DblClick()
+    Load frmColorSelect
+    frmColorSelect.Tag = BlockBG.BackColor
+    frmColorSelect.Show 1
+    BlockBG.BackColor = csSelectedColor
+    BlockSettings(SelectedBlock).Background = BlockBG.BackColor
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub BlockOptions_Click()
+    Dim i As Byte
+    For i = 0 To 2
+        If i = BlockOptions.SelectedItem.index - 1 Then
+            TabContent(i).Visible = True
+            BlockSettings(SelectedBlock).ContentType = i
+        Else
+            TabContent(i).Visible = False
+        End If
+    Next i
+End Sub
+
+Private Sub BlockOptions_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+    ClearMouseOver
+End Sub
+
+Private Sub Blocks_Click(index As Integer)
+    If SelectedBlock <> index Then
+        SelectedBlock = index ' this sets the index of the selected block
+        Block_BorderChanged
+        BlockSelected index ' this populates the block options for the block that was selected
+    End If
+End Sub
+
+Private Sub Blocks_MouseMove(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+    If MouseOverBlock <> index Then
+        MouseOverBlock = index
+        Block_BorderChanged
+    End If
+End Sub
+
+Private Sub Block_BorderChanged()
+    Dim i As Long
+    Dim state As String
+    For i = 0 To Blocks.Count - 1
+        state = "Default"
+        If i = SelectedBlock Then state = "Selected"
+        If i = MouseOverBlock Then state = "MouseOver"
+        DrawBlockBorder i, state
+    Next i
+End Sub
+
+Private Sub ButnSave_Click()
+    db.Execute "UPDATE displays SET resolution_x = " & left$(cboRes.Text, 4) & ", resolution_y = " & Mid$(cboRes.Text, 8) & ", layout = " & SelectedLayout
+End Sub
+
+Private Sub butnSelectLayout_Click()
+    frameLayouts.Visible = Not frameLayouts.Visible
+End Sub
+
+Private Sub cboRes_Click()
+    PreviewScale = (Preview.Width / Screen.TwipsPerPixelX) / val(left$(cboRes.Text, 4))
+End Sub
+
+Private Sub DrawTimer_Timer()
+    DrawTimer.Enabled = False
+    BlockSettings(SelectedBlock).DrawBlock Blocks(SelectedBlock), PreviewScale
+    Block_BorderChanged
+End Sub
+
+Private Sub Form_Load()
+    Const OFFSET = 250
+    
+    Dim i As Long
+    Dim b As OptionButton
+    Dim c As OLE_COLOR
+    Dim Margin As Long
+    Dim h As Long
+    Dim w As Long
+    Dim v() As Double
+    Dim block As Long
+    Dim l As Long
+    Dim t As Long
+    Dim q As ADODB.Recordset
+    Dim li As ListItem
+    
+    c = &HBBBBBB
+    Margin = 40
+    
+    For i = 0 To 2
+        TabContent(i).left = BlockOptions.left
+        TabContent(i).Top = 1800
+    Next i
+    For i = 0 To Screen.FontCount - 1
+        If left$(Screen.Fonts(i), 1) <> "@" Then
+            hFont.AddItem Screen.Fonts(i)
+            iFont.AddItem Screen.Fonts(i)
+        End If
+    Next
+    
+    ' have to save these values in the database
+    DisplaySelect.ListIndex = 0
+    cboRes.ListIndex = 1
+    
+    Layouts(0).Width = LayoutOptions(0).Width - 200
+    Layouts(0).Height = LayoutOptions(0).Height - 200
+    
+    For i = 1 To 6
+        Load LayoutOptions(i)
+        Load Layouts(i)
+    Next i
+    For Each b In LayoutOptions
+        LayoutOptions(b.index).Picture = Layouts(b.index).Image
+        LayoutOptions(b.index).left = LayoutOptions(b.index).Width * 1.1 * (b.index Mod 3) + OFFSET
+        LayoutOptions(b.index).Top = LayoutOptions(b.index).Height * 1.2 * Int(b.index / 3) + OFFSET
+        LayoutOptions(b.index).Visible = True
+    Next b
+    Set b = Nothing
+    
+    Set q = db.Execute("SELECT * FROM menu_sections")
+    With q
+        If Not (.EOF And .BOF) Then
+            .MoveFirst
+            Do Until .EOF
+                Section.AddItem !Title
+                SectionIDs.AddItem !ID
+                .MoveNext
+            Loop
+        End If
+    End With
+    Set q = Nothing
+    Set li = Nothing
+    
+    w = Layouts(0).Width
+    h = Layouts(0).Height
+    
+    Rnd -1
+    Randomize 315 '314
+    For i = 0 To Layouts.Count - 1
+        Let v = GetLayout(i)
+        For block = 0 To UBound(v)
+            l = w * v(block, 1) + Margin
+            t = h * v(block, 2) + Margin
+            Layouts(i).Line (l, t)-(l + w * v(block, 3) - Margin * 2, t + h * v(block, 4) - Margin * 2), Rnd * 16777216, BF
+        Next block
+    Next i
+End Sub
+
+Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+    ClearMouseOver
+End Sub
+
+Private Sub hFont_Click()
+    BlockSettings(SelectedBlock).HFontName = hFont.Text
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub hFontBold_Click()
+    BlockSettings(SelectedBlock).hFontBold = CBool(hFontBold)
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub hFontColor_DblClick()
+    Load frmColorSelect
+    frmColorSelect.Tag = hFontColor.BackColor
+    frmColorSelect.Show 1
+    hFontColor.BackColor = csSelectedColor
+    BlockSettings(SelectedBlock).hFontColor = hFontColor.BackColor
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub hFontSize_Change()
+    BlockSettings(SelectedBlock).hFontSize = val(hFontSize)
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub iFont_Click()
+    BlockSettings(SelectedBlock).IFontName = iFont.Text
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub iFontBold_Click()
+    BlockSettings(SelectedBlock).iFontBold = CBool(iFontBold)
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub iFontColor_DblClick()
+    Load frmColorSelect
+    frmColorSelect.Tag = iFontColor.BackColor
+    frmColorSelect.Show 1
+    iFontColor.BackColor = csSelectedColor
+    BlockSettings(SelectedBlock).iFontColor = iFontColor.BackColor
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub iFontSize_Change()
+    BlockSettings(SelectedBlock).iFontSize = val(iFontSize)
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub LayoutOptions_MouseUp(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+    Dim v() As Double
+    Dim block As Long
+    SelectedLayout = index
+    Let v = GetLayout(index)
+    ReDim BlockSettings(UBound(v))
+    
+    For block = 0 To UBound(v)
+        If block > Blocks.Count - 1 Then Load Blocks(block)
+        Blocks(block).left = Preview.Width * v(block, 1)
+        Blocks(block).Top = Preview.Height * v(block, 2)
+        Blocks(block).Width = Preview.Width * v(block, 3)
+        Blocks(block).Height = Preview.Height * v(block, 4)
+        
+        InitializeBlockSettings block
+        
+        BlockSettings(block).DrawBlock Blocks(block), PreviewScale
+        DrawBlockBorder block, "default"
+        
+        Blocks(block).Visible = True
+    Next block
+    frameLayouts.Visible = False
+    Blocks_Click -1
+End Sub
+
+Private Sub InitializeBlockSettings(ByVal index As Long)
+    Set BlockSettings(index) = New PanelBlock
+    If SectionIDs.ListCount > 0 Then
+        BlockSettings(index).SectionID = val(SectionIDs.List(0))
+    End If
+End Sub
+
+Private Sub DrawBlockBorder(ByVal index As Long, ByVal state As String)
+    Dim c As Long
+    If state = "MouseOver" Then
+        c = vbYellow
+    ElseIf state = "Selected" Then
+        c = vbRed
+    Else '         "Default"
+        c = &H666666 'vbBlack
+    End If
+    
+    Blocks(index).Line (0, 0)-(Blocks(index).Width - 30, Blocks(index).Height - 45), c, B
+    Blocks(index).Line (15, 15)-(Blocks(index).Width - 45, Blocks(index).Height - 60), c, B
+End Sub
+
+Private Sub BlockSelected(ByVal index As Long)
+    If index = -1 Then
+        BlockOptions.Visible = False
+        TabContent(0).Visible = False
+        TabContent(1).Visible = False
+        TabContent(2).Visible = False
+        labBlockOptions.Visible = False
+        labColor.Visible = False
+        BlockBG.Visible = False
+    Else
+        BlockOptions.Visible = True
+        labBlockOptions.Visible = True
+        labColor.Visible = True
+        BlockBG.Visible = True
+        BlockOptions.SelectedItem = BlockOptions.Tabs(BlockSettings(index).ContentType + 1)
+        
+        BlockOptions_Click
+        BlockBG.BackColor = BlockSettings(index).Background
+        'load settings from blocksettings
+        If BlockSettings(index).ContentType = 0 Then
+            'load menu settings
+            Section.ListIndex = GetSectionIndex(BlockSettings(index).SectionID)
+            Margin = BlockSettings(index).Margin
+            hFont.ListIndex = GetFontIndex(BlockSettings(index).HFontName)
+            hFontSize = BlockSettings(index).hFontSize
+            hFontBold = -CLng(BlockSettings(index).hFontBold)
+            hFontColor.BackColor = BlockSettings(index).hFontColor
+            iFont.ListIndex = GetFontIndex(BlockSettings(index).IFontName)
+            iFontSize = BlockSettings(index).iFontSize
+            iFontBold = CBool(BlockSettings(index).iFontBold)
+            iFontColor.BackColor = BlockSettings(index).iFontColor
+        ElseIf BlockSettings(index).ContentType = 1 Then
+            'load picture settings
+        ElseIf BlockSettings(index).ContentType = 2 Then
+            'video
+        End If
+    End If
+End Sub
+
+Private Sub ClearMouseOver()
+    MouseOverBlock = -1
+    Block_BorderChanged
+End Sub
+
+Private Sub Margin_Change()
+    BlockSettings(SelectedBlock).Margin = val(Margin)
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub Section_Click()
+    BlockSettings(SelectedBlock).SectionID = val(SectionIDs.List(Section.ListIndex))
+    DrawTimer.Enabled = True
+End Sub
+
+Private Sub TabContent_MouseMove(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+    ClearMouseOver
+End Sub
+
+Private Function GetSectionIndex(ByVal ID As Long) As Long
+    Dim i As Long
+    GetSectionIndex = -1
+    For i = 0 To SectionIDs.ListCount - 1
+        If SectionIDs.List(i) = ID Then GetSectionIndex = i
+    Next i
+End Function
+
+Private Function GetFontIndex(ByVal fontname As String) As Long
+    Dim i As Long
+    GetFontIndex = -1
+    For i = 0 To hFont.ListCount - 1
+        If hFont.List(i) = fontname Then
+            GetFontIndex = i
+            Exit For
+        End If
+    Next i
+End Function
+

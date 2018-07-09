@@ -44,6 +44,10 @@ Function sqlTime(val As Variant) As String
    
 End Function
 
+Sub Delete(ByVal Table As String, ByVal primaryKeyField As String, ByVal id As Long)
+    db.Execute "DELETE FROM " & Table & " WHERE " & primaryKeyField & " = " & id
+End Sub
+
 Sub Upsert(ByVal Table As String, ByRef fields As Variant, ByRef values As Variant)
     ' fields and values are arrays of strings but vb would NOT allow me to assign those arrays in a single line without making them variants!!!!!!
     Dim sql As String
