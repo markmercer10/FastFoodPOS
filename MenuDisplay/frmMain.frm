@@ -76,6 +76,18 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Dim DisplaysShown As Boolean
+
+Private Sub butnDisplay_Click()
+    If Not DisplaysShown Then
+        frmDisplay.Show
+        DisplaysShown = True
+    Else
+        Unload frmDisplay
+        DisplaysShown = False
+    End If
+End Sub
+
 Private Sub butnEdit_Click()
     frmMenuEditor.Show 1
 End Sub
@@ -85,5 +97,6 @@ Private Sub butnPanes_Click()
 End Sub
 
 Private Sub Form_Load()
+    DisplaysShown = False
     ConnectDB
 End Sub

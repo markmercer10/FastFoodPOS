@@ -25,6 +25,7 @@ Private mvarIFontSize As Long
 Private mvarIFontBold As Boolean
 Private mvarIFontColor As Long
 Private mvarPicturePath As String
+Private mvarStretch As Boolean
 
 Private Sub Class_Initialize()
     Let mvarBackground = vbBlack
@@ -39,6 +40,7 @@ Private Sub Class_Initialize()
     Let mvarIFontBold = False
     Let mvarIFontColor = vbWhite
     Let mvarPicturePath = ""
+    Let mvarStretch = True
 End Sub
 
 Public Property Let Background(ByVal vData As Long)
@@ -145,6 +147,14 @@ Public Property Get PicturePath() As String
     PicturePath = mvarPicturePath
 End Property
 
+Public Property Let Stretch(ByVal vData As Boolean)
+    mvarStretch = vData
+End Property
+
+Public Property Get Stretch() As Boolean
+    Stretch = mvarStretch
+End Property
+
 Public Sub DrawBlock(ByRef pb As PictureBox, ByVal d_scale As Double)
     Dim s As Long
     Dim h As ADODB.Recordset
@@ -171,6 +181,8 @@ Public Sub DrawBlock(ByRef pb As PictureBox, ByVal d_scale As Double)
     lineHeight = iFontSize * 2 * d_scale * Screen.TwipsPerPixelY
     CurrentY = Margin * d_scale * Screen.TwipsPerPixelY
     
+    If IsNull(pb) Then Exit Sub
+    If pb Is Nothing Then Exit Sub
     pb.Cls
     pb.BackColor = Background
     If ContentType = 0 Then
@@ -204,11 +216,6 @@ Public Sub DrawBlock(ByRef pb As PictureBox, ByVal d_scale As Double)
                         .MoveNext
                     Loop
                     
-                    '.MoveFirst
-                    'Do Until .EOF
-                    '    .MoveNext
-                    'Loop
-                    
                     If hasPrice Then columnCount = columnCount + 1
                     If hasSmall Then columnCount = columnCount + 1
                     If hasMedium Then columnCount = columnCount + 1
@@ -219,6 +226,7 @@ Public Sub DrawBlock(ByRef pb As PictureBox, ByVal d_scale As Double)
                     ReDim columnHeaders(columnCount - 1)
                     ReDim columnBoundaries(columnCount - 1)
                     
+                    pb.ForeColor = iFontColor
                     columnBoundaries(columnCount - 1) = pb.ScaleWidth - Margin * d_scale * Screen.TwipsPerPixelX
                     For col = columnCount - 2 To 0 Step -1
                         columnBoundaries(col) = columnBoundaries(col + 1) - columnWidth
@@ -273,12 +281,11 @@ Public Sub DrawBlock(ByRef pb As PictureBox, ByVal d_scale As Double)
                         CurrentY = CurrentY + lineHeight
                         .MoveNext
                     Loop
-                    
                 End If
             End With
         End If
     ElseIf ContentType = 1 Then
-        'draw picture
+        PaintPic PicturePath, pb, Stretch
     ElseIf ContentType = 2 Then
         'render video ... or not
     End If
@@ -286,7 +293,49 @@ Public Sub DrawBlock(ByRef pb As PictureBox, ByVal d_scale As Double)
 
 End Sub
 
-Public Sub Save()
-
+Public Sub Save(ByVal display_id As Long, ByVal block_number As Long)
+    Dim q As ADODB.Recordset
+    Dim id As Long
+    Dim fields As Variant
+    Dim values As Variant
+    Set q = db.Execute("SELECT * FROM blocks WHERE display_id = " & display_id & " AND block_number = " & block_number)
+    If Not (q.EOF And q.BOF) Then
+        q.MoveFirst
+        id = q!id
+    End If
+    
+    fields = Array("id", "display_id", "block_number", "content_type", "margin", "background", "section_id", "header_font", "header_size", "header_bold", "header_color", "item_font", "item_size", "item_bold", "item_color", "picture", "stretch")
+    values = Array(id, display_id, block_number, ContentType, Margin, Background, SectionID, HFontName, hFontSize, -CLng(hFontBold), hFontColor, IFontName, iFontSize, -CLng(iFontBold), iFontColor, EscapeBackslashes(PicturePath), -CLng(Stretch))
+    Upsert "blocks", fields, values
 End Sub
 
+Public Sub Load(ByVal display_id As Long, ByVal block_number As Long)
+    Dim q As ADODB.Recordset
+    Dim s As ADODB.Recordset
+    Set q = db.Execute("SELECT * FROM blocks WHERE display_id = " & display_id & " AND block_number = " & block_number)
+    With q
+        If Not (.EOF And .BOF) Then
+            .MoveFirst
+            Let mvarContentType = !content_type
+            Let mvarBackground = !Background
+            Let mvarPicturePath = !Picture
+            Let mvarStretch = CBool(!Stretch)
+            
+            Set s = db.Execute("SELECT * FROM menu_sections WHERE id = " & !section_id)
+            If Not (s.EOF And s.BOF) Then
+                Let mvarSectionID = !section_id
+                Let mvarMargin = !Margin
+                Let mvarHFontName = !header_font
+                Let mvarHFontSize = !header_size
+                Let mvarHFontBold = CBool(!header_bold)
+                Let mvarHFontColor = !header_color
+                Let mvarIFontName = !item_font
+                Let mvarIFontSize = !item_size
+                Let mvarIFontBold = CBool(!item_bold)
+                Let mvarIFontColor = !item_color
+            Else
+                Let mvarSectionID = -1
+            End If
+        End If
+    End With
+End Sub

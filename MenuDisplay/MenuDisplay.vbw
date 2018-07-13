@@ -4,3 +4,4 @@ modDatabaseBasic = 125, 125, 1563, 684, C
 modmain = 511, 120, 1624, 876, C
 frmDisplayPanels = 40, 43, 1359, 997, , 217, 216, 1649, 996, C
 frmColorSelect = 266, 231, 1585, 909, , 0, 0, 503, 493, C
+PanelBlock = 0, 0, 0, 0, C

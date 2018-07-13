@@ -1,5 +1,6 @@
 VERSION 5.00
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.2#0"; "MSCOMCTL.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form frmDisplayPanels 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Display Panels"
@@ -13,6 +14,18 @@ Begin VB.Form frmDisplayPanels
    ScaleHeight     =   8895
    ScaleWidth      =   19635
    StartUpPosition =   3  'Windows Default
+   Begin MSComDlg.CommonDialog CommonDialog 
+      Left            =   19080
+      Top             =   120
+      _ExtentX        =   847
+      _ExtentY        =   847
+      _Version        =   393216
+   End
+   Begin VB.Timer LoadTimer 
+      Interval        =   50
+      Left            =   240
+      Top             =   840
+   End
    Begin VB.CommandButton ButnSave 
       BackColor       =   &H0080FFFF&
       Caption         =   "Save Changes"
@@ -34,8 +47,8 @@ Begin VB.Form frmDisplayPanels
    End
    Begin VB.Timer DrawTimer 
       Enabled         =   0   'False
-      Interval        =   500
-      Left            =   240
+      Interval        =   250
+      Left            =   720
       Top             =   840
    End
    Begin VB.ComboBox cboRes 
@@ -477,10 +490,46 @@ Begin VB.Form frmDisplayPanels
       Top             =   600
       Visible         =   0   'False
       Width           =   4935
-      Begin VB.PictureBox Picture1 
-         Height          =   3495
+      Begin VB.OptionButton opFit 
+         Caption         =   "Fit to Box"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   615
+         Left            =   2520
+         TabIndex        =   45
+         Top             =   5520
+         Width           =   1575
+      End
+      Begin VB.OptionButton opStretch 
+         Caption         =   "Stretch && Crop"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   12
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   615
+         Left            =   240
+         TabIndex        =   44
+         Top             =   5520
+         Value           =   -1  'True
+         Width           =   2055
+      End
+      Begin VB.PictureBox PicturePreview 
+         AutoRedraw      =   -1  'True
+         Height          =   4575
          Left            =   120
-         ScaleHeight     =   3435
+         ScaleHeight     =   4515
          ScaleWidth      =   4515
          TabIndex        =   16
          Top             =   840
@@ -572,7 +621,7 @@ Begin VB.Form frmDisplayPanels
    Begin VB.Frame frameLayouts 
       BackColor       =   &H00FFFFFF&
       Caption         =   "Layouts"
-      Height          =   4215
+      Height          =   8175
       Left            =   7800
       TabIndex        =   4
       Top             =   600
@@ -720,11 +769,19 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Private SelectedDisplay As Long
 Private SelectedLayout As Long
 Private SelectedBlock As Long
 Private MouseOverBlock As Long
 Private BlockSettings() As PanelBlock
 Private PreviewScale As Double
+Private BlockCount As Byte
+Private MadeChanges As Boolean
+Private ChangeTracking As Boolean
+
+Private Sub BlockBG_Click()
+    BlockBG_DblClick
+End Sub
 
 Private Sub BlockBG_DblClick()
     Load frmColorSelect
@@ -732,7 +789,10 @@ Private Sub BlockBG_DblClick()
     frmColorSelect.Show 1
     BlockBG.BackColor = csSelectedColor
     BlockSettings(SelectedBlock).Background = BlockBG.BackColor
+    PicturePreview.BackColor = BlockBG.BackColor
+    PaintPic BlockSettings(SelectedBlock).PicturePath, PicturePreview, False
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub BlockOptions_Click()
@@ -745,6 +805,7 @@ Private Sub BlockOptions_Click()
             TabContent(i).Visible = False
         End If
     Next i
+    BlockSettings(SelectedBlock).DrawBlock Blocks(SelectedBlock), PreviewScale
 End Sub
 
 Private Sub BlockOptions_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -753,9 +814,11 @@ End Sub
 
 Private Sub Blocks_Click(index As Integer)
     If SelectedBlock <> index Then
+        ChangeTracking = False
         SelectedBlock = index ' this sets the index of the selected block
         Block_BorderChanged
         BlockSelected index ' this populates the block options for the block that was selected
+        ChangeTracking = True
     End If
 End Sub
 
@@ -778,15 +841,57 @@ Private Sub Block_BorderChanged()
 End Sub
 
 Private Sub ButnSave_Click()
-    db.Execute "UPDATE displays SET resolution_x = " & left$(cboRes.Text, 4) & ", resolution_y = " & Mid$(cboRes.Text, 8) & ", layout = " & SelectedLayout
+    db.Execute "UPDATE displays SET " & _
+    "resolution_x = " & left$(cboRes.Text, 4) & _
+    ", resolution_y = " & Mid$(cboRes.Text, 8) & _
+    ", layout = " & SelectedLayout & _
+    " WHERE id = " & SelectedDisplay + 1
+    
+    Dim i As Long
+    For i = 0 To BlockCount - 1
+        BlockSettings(i).Save DisplaySelect.ListIndex + 1, i
+    Next i
+    MadeChanges = False
 End Sub
 
 Private Sub butnSelectLayout_Click()
     frameLayouts.Visible = Not frameLayouts.Visible
 End Sub
 
+Private Sub butnSelectPicture_Click()
+    CommonDialog.Filter = "Jpeg (*.jpg)|*.jpg|PNG (*.png)|*.png|Bitmap (*.bmp)|*.bmp"
+    CommonDialog.DefaultExt = "jpg"
+    CommonDialog.DialogTitle = "Select Picture"
+    CommonDialog.ShowOpen
+    
+    If CommonDialog.FileName <> "" Then
+        BlockSettings(SelectedBlock).PicturePath = CommonDialog.FileName
+        PaintPic BlockSettings(SelectedBlock).PicturePath, PicturePreview, False
+        DrawTimer.Enabled = True
+        If ChangeTracking Then MadeChanges = True
+    End If
+End Sub
+
 Private Sub cboRes_Click()
     PreviewScale = (Preview.Width / Screen.TwipsPerPixelX) / val(left$(cboRes.Text, 4))
+    DrawAllBlocks
+    If ChangeTracking Then MadeChanges = True
+End Sub
+
+Private Sub DisplaySelect_Click()
+    If DisplaySelect.ListIndex <> SelectedDisplay Then
+        If MadeChanges Then
+            If MsgBox("You have made changes to this display, by switching you will loose your changes unless you save them first.  Do you want to switch displays now?", vbYesNo) = vbYes Then
+                LoadTimer.Enabled = True
+                SelectedDisplay = DisplaySelect.ListIndex
+            Else
+                DisplaySelect.ListIndex = SelectedDisplay
+            End If
+        Else
+            LoadTimer.Enabled = True
+            SelectedDisplay = DisplaySelect.ListIndex
+        End If
+    End If
 End Sub
 
 Private Sub DrawTimer_Timer()
@@ -813,6 +918,8 @@ Private Sub Form_Load()
     
     c = &HBBBBBB
     Margin = 40
+    SelectedDisplay = 0
+    ChangeTracking = False
     
     For i = 0 To 2
         TabContent(i).left = BlockOptions.left
@@ -832,7 +939,7 @@ Private Sub Form_Load()
     Layouts(0).Width = LayoutOptions(0).Width - 200
     Layouts(0).Height = LayoutOptions(0).Height - 200
     
-    For i = 1 To 6
+    For i = 1 To 15
         Load LayoutOptions(i)
         Load Layouts(i)
     Next i
@@ -850,7 +957,7 @@ Private Sub Form_Load()
             .MoveFirst
             Do Until .EOF
                 Section.AddItem !Title
-                SectionIDs.AddItem !ID
+                SectionIDs.AddItem !id
                 .MoveNext
             Loop
         End If
@@ -862,7 +969,7 @@ Private Sub Form_Load()
     h = Layouts(0).Height
     
     Rnd -1
-    Randomize 315 '314
+    Randomize 314 '314
     For i = 0 To Layouts.Count - 1
         Let v = GetLayout(i)
         For block = 0 To UBound(v)
@@ -880,11 +987,17 @@ End Sub
 Private Sub hFont_Click()
     BlockSettings(SelectedBlock).HFontName = hFont.Text
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub hFontBold_Click()
     BlockSettings(SelectedBlock).hFontBold = CBool(hFontBold)
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
+End Sub
+
+Private Sub hFontColor_Click()
+    hFontColor_DblClick
 End Sub
 
 Private Sub hFontColor_DblClick()
@@ -894,21 +1007,29 @@ Private Sub hFontColor_DblClick()
     hFontColor.BackColor = csSelectedColor
     BlockSettings(SelectedBlock).hFontColor = hFontColor.BackColor
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub hFontSize_Change()
     BlockSettings(SelectedBlock).hFontSize = val(hFontSize)
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub iFont_Click()
     BlockSettings(SelectedBlock).IFontName = iFont.Text
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub iFontBold_Click()
     BlockSettings(SelectedBlock).iFontBold = CBool(iFontBold)
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
+End Sub
+
+Private Sub iFontColor_Click()
+    iFontColor_DblClick
 End Sub
 
 Private Sub iFontColor_DblClick()
@@ -918,21 +1039,29 @@ Private Sub iFontColor_DblClick()
     iFontColor.BackColor = csSelectedColor
     BlockSettings(SelectedBlock).iFontColor = iFontColor.BackColor
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub iFontSize_Change()
     BlockSettings(SelectedBlock).iFontSize = val(iFontSize)
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub LayoutOptions_MouseUp(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+    LoadLayout index
+    If ChangeTracking Then MadeChanges = True
+End Sub
+
+Private Sub LoadLayout(ByVal index As Long)
     Dim v() As Double
     Dim block As Long
     SelectedLayout = index
     Let v = GetLayout(index)
-    ReDim BlockSettings(UBound(v))
+    BlockCount = UBound(v) + 1
+    ReDim BlockSettings(BlockCount - 1)
     
-    For block = 0 To UBound(v)
+    For block = 0 To BlockCount - 1
         If block > Blocks.Count - 1 Then Load Blocks(block)
         Blocks(block).left = Preview.Width * v(block, 1)
         Blocks(block).Top = Preview.Height * v(block, 2)
@@ -948,13 +1077,19 @@ Private Sub LayoutOptions_MouseUp(index As Integer, Button As Integer, Shift As 
     Next block
     frameLayouts.Visible = False
     Blocks_Click -1
+
 End Sub
 
 Private Sub InitializeBlockSettings(ByVal index As Long)
     Set BlockSettings(index) = New PanelBlock
-    If SectionIDs.ListCount > 0 Then
-        BlockSettings(index).SectionID = val(SectionIDs.List(0))
+    
+    BlockSettings(index).Load DisplaySelect.ListIndex + 1, index
+    If BlockSettings(index).SectionID = -1 Then
+        If SectionIDs.ListCount > 0 Then
+            BlockSettings(index).SectionID = val(SectionIDs.List(0))
+        End If
     End If
+    
 End Sub
 
 Private Sub DrawBlockBorder(ByVal index As Long, ByVal state As String)
@@ -985,28 +1120,27 @@ Private Sub BlockSelected(ByVal index As Long)
         labBlockOptions.Visible = True
         labColor.Visible = True
         BlockBG.Visible = True
-        BlockOptions.SelectedItem = BlockOptions.Tabs(BlockSettings(index).ContentType + 1)
         
+        BlockOptions.SelectedItem = BlockOptions.Tabs(BlockSettings(index).ContentType + 1)
         BlockOptions_Click
+        
         BlockBG.BackColor = BlockSettings(index).Background
+        PicturePreview.BackColor = BlockBG.BackColor
+        
         'load settings from blocksettings
-        If BlockSettings(index).ContentType = 0 Then
-            'load menu settings
-            Section.ListIndex = GetSectionIndex(BlockSettings(index).SectionID)
-            Margin = BlockSettings(index).Margin
-            hFont.ListIndex = GetFontIndex(BlockSettings(index).HFontName)
-            hFontSize = BlockSettings(index).hFontSize
-            hFontBold = -CLng(BlockSettings(index).hFontBold)
-            hFontColor.BackColor = BlockSettings(index).hFontColor
-            iFont.ListIndex = GetFontIndex(BlockSettings(index).IFontName)
-            iFontSize = BlockSettings(index).iFontSize
-            iFontBold = CBool(BlockSettings(index).iFontBold)
-            iFontColor.BackColor = BlockSettings(index).iFontColor
-        ElseIf BlockSettings(index).ContentType = 1 Then
-            'load picture settings
-        ElseIf BlockSettings(index).ContentType = 2 Then
-            'video
-        End If
+        Section.ListIndex = GetSectionIndex(BlockSettings(index).SectionID)
+        Margin = BlockSettings(index).Margin
+        hFont.ListIndex = GetFontIndex(BlockSettings(index).HFontName)
+        hFontSize = BlockSettings(index).hFontSize
+        hFontBold = -CLng(BlockSettings(index).hFontBold)
+        hFontColor.BackColor = BlockSettings(index).hFontColor
+        iFont.ListIndex = GetFontIndex(BlockSettings(index).IFontName)
+        iFontSize = BlockSettings(index).iFontSize
+        iFontBold = -CLng(BlockSettings(index).iFontBold)
+        iFontColor.BackColor = BlockSettings(index).iFontColor
+        opStretch.value = BlockSettings(index).Stretch
+        opFit.value = Not BlockSettings(index).Stretch
+        PaintPic BlockSettings(SelectedBlock).PicturePath, PicturePreview, False
     End If
 End Sub
 
@@ -1015,25 +1149,69 @@ Private Sub ClearMouseOver()
     Block_BorderChanged
 End Sub
 
+Private Sub LoadTimer_Timer()
+    LoadTimer.Enabled = False
+    
+    Dim i As Byte
+    Set q = db.Execute("SELECT * FROM displays WHERE id = " & DisplaySelect.ListIndex + 1)
+    With q
+        If Not (.EOF And .BOF) Then
+            .MoveFirst
+            If IsNull(!layout) Then
+                LoadLayout 0
+            Else
+                LoadLayout !layout
+            End If
+            For i = 0 To BlockCount - 1
+                BlockSettings(i).Load DisplaySelect.ListIndex + 1, i
+                'BlockSettings(i).DrawBlock Blocks(i), PreviewScale
+                'MsgBox BlockSettings(i).PicturePath
+            Next i
+            For i = 0 To cboRes.ListCount - 1
+                If left$(cboRes.List(i), 4) = !resolution_x Then
+                    cboRes.ListIndex = i
+                    cboRes_Click
+                End If
+            Next i
+        End If
+    End With
+    
+    MadeChanges = False
+End Sub
+
 Private Sub Margin_Change()
     BlockSettings(SelectedBlock).Margin = val(Margin)
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
+End Sub
+
+Private Sub opFit_Click()
+    BlockSettings(SelectedBlock).Stretch = False
+    DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
+End Sub
+
+Private Sub opStretch_Click()
+    BlockSettings(SelectedBlock).Stretch = True
+    DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub Section_Click()
     BlockSettings(SelectedBlock).SectionID = val(SectionIDs.List(Section.ListIndex))
     DrawTimer.Enabled = True
+    If ChangeTracking Then MadeChanges = True
 End Sub
 
 Private Sub TabContent_MouseMove(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
     ClearMouseOver
 End Sub
 
-Private Function GetSectionIndex(ByVal ID As Long) As Long
+Private Function GetSectionIndex(ByVal id As Long) As Long
     Dim i As Long
     GetSectionIndex = -1
     For i = 0 To SectionIDs.ListCount - 1
-        If SectionIDs.List(i) = ID Then GetSectionIndex = i
+        If SectionIDs.List(i) = id Then GetSectionIndex = i
     Next i
 End Function
 
@@ -1048,3 +1226,11 @@ Private Function GetFontIndex(ByVal fontname As String) As Long
     Next i
 End Function
 
+Private Sub DrawAllBlocks()
+    For block = 0 To BlockCount - 1
+        If Blocks.Count > block Then
+            BlockSettings(block).DrawBlock Blocks(block), PreviewScale
+            DrawBlockBorder block, "default"
+        End If
+    Next block
+End Sub

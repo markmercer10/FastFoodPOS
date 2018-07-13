@@ -16,7 +16,7 @@ Sub ConnectDB()
         Open App.Path & "\connection.txt" For Input As #1
             Do Until EOF(1)
                 Line Input #1, fileline
-                If Left$(fileline, Len(prefix)) = prefix Then
+                If left$(fileline, Len(prefix)) = prefix Then
                     db.ConnectionString = Trim(Mid$(fileline, Len(prefix) + 2))
                     Exit Do
                 End If
@@ -65,7 +65,13 @@ Sub Upsert(ByVal Table As String, ByRef fields As Variant, ByRef values As Varia
     Next i
     sql = sql & ") values ("
     For i = 0 To UBound(fields)
-        sql = sql & "'" & Replace(values(i), "'", """") & "'"
+        If VarType(values(i)) = vbString Then
+            sql = sql & """" & Replace(values(i), """", "'") & """"
+        ElseIf VarType(values(i)) = vbDate Then
+            sql = sql & sqlDate(values(i))
+        Else
+            sql = sql & "'" & Replace(values(i), "'", """") & "'"
+        End If
         If i <> UBound(fields) Then sql = sql & ", "
     Next i
     sql = sql & ") ON DUPLICATE KEY UPDATE "
