@@ -77,13 +77,34 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Dim DisplaysShown As Boolean
+Dim D1 As New frmDisplay
+Dim D2 As New frmDisplay
 
 Private Sub butnDisplay_Click()
     If Not DisplaysShown Then
-        frmDisplay.Show
+        Dim q As ADODB.Recordset
+        Set q = db.Execute("SELECT * FROM displays ORDER BY id ASC")
+        With q
+            If Not (.EOF And .BOF) Then
+                .MoveFirst
+                Load D1
+                D1.Width = !resolution_x * Screen.TwipsPerPixelX
+                D1.Height = !resolution_y * Screen.TwipsPerPixelY
+                D1.DrawPanel !id, !layout
+                D1.Show
+                
+                .MoveNext
+                Load D2
+                D2.Width = !resolution_x * Screen.TwipsPerPixelX
+                D2.Height = !resolution_y * Screen.TwipsPerPixelY
+                D2.DrawPanel !id, !layout
+                D2.Show
+            End If
+        End With
         DisplaysShown = True
     Else
-        Unload frmDisplay
+        Unload D1
+        Unload D2
         DisplaysShown = False
     End If
 End Sub
