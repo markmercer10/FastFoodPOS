@@ -15,6 +15,25 @@ Begin VB.Form frmColorSelect
    ScaleWidth      =   231
    ShowInTaskbar   =   0   'False
    StartUpPosition =   2  'CenterScreen
+   Begin VB.Timer Timer1 
+      Interval        =   10
+      Left            =   240
+      Top             =   240
+   End
+   Begin VB.PictureBox BigSwatch 
+      Appearance      =   0  'Flat
+      BackColor       =   &H80000005&
+      ForeColor       =   &H80000008&
+      Height          =   1815
+      Left            =   120
+      MousePointer    =   2  'Cross
+      ScaleHeight     =   119
+      ScaleMode       =   3  'Pixel
+      ScaleWidth      =   215
+      TabIndex        =   0
+      Top             =   120
+      Width           =   3255
+   End
    Begin VB.PictureBox inverseColor 
       Appearance      =   0  'Flat
       BackColor       =   &H80000005&
@@ -67,11 +86,6 @@ Begin VB.Form frmColorSelect
       Text            =   "FFFFFF"
       Top             =   3840
       Width           =   855
-   End
-   Begin VB.Timer Timer1 
-      Interval        =   10
-      Left            =   240
-      Top             =   240
    End
    Begin VB.CommandButton okButn 
       Caption         =   "OK"
@@ -190,20 +204,6 @@ Begin VB.Form frmColorSelect
       TickFrequency   =   10
       TextPosition    =   1
    End
-   Begin VB.PictureBox BigSwatch 
-      Appearance      =   0  'Flat
-      BackColor       =   &H80000005&
-      ForeColor       =   &H80000008&
-      Height          =   1815
-      Left            =   120
-      MousePointer    =   2  'Cross
-      ScaleHeight     =   119
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   215
-      TabIndex        =   0
-      Top             =   120
-      Width           =   3255
-   End
    Begin MSComctlLib.Slider SliderG 
       Height          =   315
       Left            =   1080
@@ -293,6 +293,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
+Private MouseIsDown As Boolean
 
 Sub colorChange()
     Dim col As Long
@@ -302,7 +303,7 @@ Sub colorChange()
     Dim avg As Long
     Dim similar1 As Boolean
     Dim similar2 As Boolean
-    col = SelectedColor.BackColor
+    col = selectedColor.BackColor
     Shape1.FillColor = col
     tR = Int(col And &HFF)
     tG = Int(Int(col / 256#) And &HFF)
@@ -364,7 +365,7 @@ Sub colorChange()
     Else
         Label4.ForeColor = inverseColor.BackColor
         Label5.ForeColor = inverseColor.BackColor
-        Label7.ForeColor = SelectedColor.BackColor
+        Label7.ForeColor = selectedColor.BackColor
     End If
 End Sub
 
@@ -385,25 +386,44 @@ Function Hex2D(ByVal n As Long) As String
 End Function
 
 
-Private Sub BigSwatch_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
-    SelectedColor.BackColor = BigSwatch.Point(x, y)
+Private Sub BigSwatch_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    If Button = 1 Then MouseIsDown = True
+End Sub
+
+Private Sub BigSwatch_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    If MouseIsDown Then
+        If X >= 0 And Y >= 0 And X < BigSwatch.ScaleWidth And Y < BigSwatch.ScaleHeight Then
+            selectedColor.BackColor = BigSwatch.Point(X, Y)
+            colorChange
+        End If
+    End If
+End Sub
+
+Private Sub BigSwatch_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    MouseIsDown = False
+End Sub
+
+Private Sub inverseColor_Click()
+    selectedColor.BackColor = inverseColor.BackColor
     colorChange
 End Sub
 
+Private Sub Label5_Click()
+    nearestColor_Click
+End Sub
 
-Private Sub inverseColor_Click()
-    SelectedColor.BackColor = inverseColor.BackColor
-    colorChange
+Private Sub Label7_Click()
+    inverseColor_Click
 End Sub
 
 Private Sub nearestColor_Click()
-    SelectedColor.BackColor = nearestColor.BackColor
+    selectedColor.BackColor = nearestColor.BackColor
     colorChange
 End Sub
 
 
 Private Sub okButn_Click()
-    csSelectedColor = SelectedColor.BackColor
+    csSelectedColor = selectedColor.BackColor
     Unload Me
 End Sub
 
@@ -424,13 +444,13 @@ End Sub
 
 Private Sub tB_Change()
     If tB >= 0 And tB <= 255 Then SliderB = tB
-    SelectedColor.BackColor = "&H" & Hex2D(tB) & Hex2D(tG) & Hex2D(tR)
+    selectedColor.BackColor = "&H" & Hex2D(tB) & Hex2D(tG) & Hex2D(tR)
     colorChange
 End Sub
 
 Private Sub tG_Change()
     If tG >= 0 And tG <= 255 Then SliderG = tG
-    SelectedColor.BackColor = "&H" & Hex2D(tB) & Hex2D(tG) & Hex2D(tR)
+    selectedColor.BackColor = "&H" & Hex2D(tB) & Hex2D(tG) & Hex2D(tR)
     colorChange
 End Sub
 
@@ -449,7 +469,7 @@ Private Sub Timer1_Timer()
     bigSwatchWidth = BigSwatch.Width - 14
     DoEvents
     
-    SelectedColor.BackColor = val(Me.Tag)
+    selectedColor.BackColor = val(Me.Tag)
     colorChange
     
     For i = 0 To bigSwatchWidth
@@ -464,7 +484,7 @@ Private Sub Timer1_Timer()
             If b < 0 Then b = 0
             If b > 1 Then b = 1
             
-            s = Sin(j / BigSwatch.Height * 3.14159)
+            s = (Sin(j / BigSwatch.Height * 3.14159) ^ 0.5) * (Sin(j / BigSwatch.Height * 3.14159) ^ 2)
             's = s ^ 2
             bright = 1 - j / BigSwatch.Height
             R = (R * s + bright * (1 - s))
@@ -488,7 +508,7 @@ End Sub
 
 Private Sub tR_Change()
     If tR >= 0 And tR <= 255 Then SliderR = tR
-    SelectedColor.BackColor = "&H" & Hex2D(tB) & Hex2D(tG) & Hex2D(tR)
+    selectedColor.BackColor = "&H" & Hex2D(tB) & Hex2D(tG) & Hex2D(tR)
     colorChange
 End Sub
 
