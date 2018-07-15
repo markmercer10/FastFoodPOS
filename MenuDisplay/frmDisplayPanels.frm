@@ -798,7 +798,7 @@ End Sub
 Private Sub BlockOptions_Click()
     Dim i As Byte
     For i = 0 To 2
-        If i = BlockOptions.SelectedItem.index - 1 Then
+        If i = BlockOptions.SelectedItem.Index - 1 Then
             TabContent(i).Visible = True
             BlockSettings(SelectedBlock).ContentType = i
         Else
@@ -808,23 +808,23 @@ Private Sub BlockOptions_Click()
     BlockSettings(SelectedBlock).DrawBlock Blocks(SelectedBlock), PreviewScale
 End Sub
 
-Private Sub BlockOptions_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub BlockOptions_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     ClearMouseOver
 End Sub
 
-Private Sub Blocks_Click(index As Integer)
-    If SelectedBlock <> index Then
+Private Sub Blocks_Click(Index As Integer)
+    If SelectedBlock <> Index Then
         ChangeTracking = False
-        SelectedBlock = index ' this sets the index of the selected block
+        SelectedBlock = Index ' this sets the index of the selected block
         Block_BorderChanged
-        BlockSelected index ' this populates the block options for the block that was selected
+        BlockSelected Index ' this populates the block options for the block that was selected
         ChangeTracking = True
     End If
 End Sub
 
-Private Sub Blocks_MouseMove(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-    If MouseOverBlock <> index Then
-        MouseOverBlock = index
+Private Sub Blocks_MouseMove(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+    If MouseOverBlock <> Index Then
+        MouseOverBlock = Index
         Block_BorderChanged
     End If
 End Sub
@@ -944,10 +944,10 @@ Private Sub Form_Load()
         Load Layouts(i)
     Next i
     For Each b In LayoutOptions
-        LayoutOptions(b.index).Picture = Layouts(b.index).Image
-        LayoutOptions(b.index).left = LayoutOptions(b.index).Width * 1.1 * (b.index Mod 3) + OFFSET
-        LayoutOptions(b.index).Top = LayoutOptions(b.index).Height * 1.2 * Int(b.index / 3) + OFFSET
-        LayoutOptions(b.index).Visible = True
+        LayoutOptions(b.Index).Picture = Layouts(b.Index).Image
+        LayoutOptions(b.Index).left = LayoutOptions(b.Index).Width * 1.1 * (b.Index Mod 3) + OFFSET
+        LayoutOptions(b.Index).Top = LayoutOptions(b.Index).Height * 1.2 * Int(b.Index / 3) + OFFSET
+        LayoutOptions(b.Index).Visible = True
     Next b
     Set b = Nothing
     
@@ -980,8 +980,16 @@ Private Sub Form_Load()
     Next i
 End Sub
 
-Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     ClearMouseOver
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    If MadeChanges Then
+        If MsgBox("You have made changes to this display, by closing you will loose your changes unless you save them first.  Are you sure you want to close this window now?", vbYesNo) = vbNo Then
+            Cancel = True
+        End If
+    End If
 End Sub
 
 Private Sub hFont_Click()
@@ -1048,16 +1056,16 @@ Private Sub iFontSize_Change()
     If ChangeTracking Then MadeChanges = True
 End Sub
 
-Private Sub LayoutOptions_MouseUp(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-    LoadLayout index
+Private Sub LayoutOptions_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+    LoadLayout Index
     If ChangeTracking Then MadeChanges = True
 End Sub
 
-Private Sub LoadLayout(ByVal index As Long)
+Private Sub LoadLayout(ByVal Index As Long)
     Dim v() As Double
     Dim block As Long
-    SelectedLayout = index
-    Let v = GetLayout(index)
+    SelectedLayout = Index
+    Let v = GetLayout(Index)
     BlockCount = UBound(v) + 1
     ReDim BlockSettings(BlockCount - 1)
     
@@ -1080,19 +1088,19 @@ Private Sub LoadLayout(ByVal index As Long)
 
 End Sub
 
-Private Sub InitializeBlockSettings(ByVal index As Long)
-    Set BlockSettings(index) = New PanelBlock
+Private Sub InitializeBlockSettings(ByVal Index As Long)
+    Set BlockSettings(Index) = New PanelBlock
     
-    BlockSettings(index).Load DisplaySelect.ListIndex + 1, index
-    If BlockSettings(index).SectionID = -1 Then
+    BlockSettings(Index).Load DisplaySelect.ListIndex + 1, Index
+    If BlockSettings(Index).SectionID = -1 Then
         If SectionIDs.ListCount > 0 Then
-            BlockSettings(index).SectionID = val(SectionIDs.List(0))
+            BlockSettings(Index).SectionID = val(SectionIDs.List(0))
         End If
     End If
     
 End Sub
 
-Private Sub DrawBlockBorder(ByVal index As Long, ByVal state As String)
+Private Sub DrawBlockBorder(ByVal Index As Long, ByVal state As String)
     Dim c As Long
     If state = "MouseOver" Then
         c = vbYellow
@@ -1102,12 +1110,12 @@ Private Sub DrawBlockBorder(ByVal index As Long, ByVal state As String)
         c = &H666666 'vbBlack
     End If
     
-    Blocks(index).Line (0, 0)-(Blocks(index).Width - 30, Blocks(index).Height - 45), c, B
-    Blocks(index).Line (15, 15)-(Blocks(index).Width - 45, Blocks(index).Height - 60), c, B
+    Blocks(Index).Line (0, 0)-(Blocks(Index).Width - 30, Blocks(Index).Height - 45), c, B
+    Blocks(Index).Line (15, 15)-(Blocks(Index).Width - 45, Blocks(Index).Height - 60), c, B
 End Sub
 
-Private Sub BlockSelected(ByVal index As Long)
-    If index = -1 Then
+Private Sub BlockSelected(ByVal Index As Long)
+    If Index = -1 Then
         BlockOptions.Visible = False
         TabContent(0).Visible = False
         TabContent(1).Visible = False
@@ -1121,25 +1129,25 @@ Private Sub BlockSelected(ByVal index As Long)
         labColor.Visible = True
         BlockBG.Visible = True
         
-        BlockOptions.SelectedItem = BlockOptions.Tabs(BlockSettings(index).ContentType + 1)
+        BlockOptions.SelectedItem = BlockOptions.Tabs(BlockSettings(Index).ContentType + 1)
         BlockOptions_Click
         
-        BlockBG.BackColor = BlockSettings(index).Background
+        BlockBG.BackColor = BlockSettings(Index).Background
         PicturePreview.BackColor = BlockBG.BackColor
         
         'load settings from blocksettings
-        Section.ListIndex = GetSectionIndex(BlockSettings(index).SectionID)
-        Margin = BlockSettings(index).Margin
-        hFont.ListIndex = GetFontIndex(BlockSettings(index).HFontName)
-        hFontSize = BlockSettings(index).hFontSize
-        hFontBold = -CLng(BlockSettings(index).hFontBold)
-        hFontColor.BackColor = BlockSettings(index).hFontColor
-        iFont.ListIndex = GetFontIndex(BlockSettings(index).IFontName)
-        iFontSize = BlockSettings(index).iFontSize
-        iFontBold = -CLng(BlockSettings(index).iFontBold)
-        iFontColor.BackColor = BlockSettings(index).iFontColor
-        opStretch.value = BlockSettings(index).Stretch
-        opFit.value = Not BlockSettings(index).Stretch
+        Section.ListIndex = GetSectionIndex(BlockSettings(Index).SectionID)
+        Margin = BlockSettings(Index).Margin
+        hFont.ListIndex = GetFontIndex(BlockSettings(Index).HFontName)
+        hFontSize = BlockSettings(Index).hFontSize
+        hFontBold = -CLng(BlockSettings(Index).hFontBold)
+        hFontColor.BackColor = BlockSettings(Index).hFontColor
+        iFont.ListIndex = GetFontIndex(BlockSettings(Index).IFontName)
+        iFontSize = BlockSettings(Index).iFontSize
+        iFontBold = -CLng(BlockSettings(Index).iFontBold)
+        iFontColor.BackColor = BlockSettings(Index).iFontColor
+        opStretch.value = BlockSettings(Index).Stretch
+        opFit.value = Not BlockSettings(Index).Stretch
         PaintPic BlockSettings(SelectedBlock).PicturePath, PicturePreview, False
     End If
 End Sub
@@ -1203,7 +1211,7 @@ Private Sub Section_Click()
     If ChangeTracking Then MadeChanges = True
 End Sub
 
-Private Sub TabContent_MouseMove(index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub TabContent_MouseMove(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
     ClearMouseOver
 End Sub
 

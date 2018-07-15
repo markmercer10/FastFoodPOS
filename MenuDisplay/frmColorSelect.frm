@@ -388,6 +388,8 @@ End Function
 
 Private Sub BigSwatch_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Button = 1 Then MouseIsDown = True
+    selectedColor.BackColor = BigSwatch.Point(X, Y)
+    colorChange
 End Sub
 
 Private Sub BigSwatch_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
@@ -428,14 +430,26 @@ Private Sub okButn_Click()
 End Sub
 
 
+Private Sub SliderB_Change()
+    SliderB_Click
+End Sub
+
 Private Sub SliderB_Click()
     tB = SliderB.value
+End Sub
+
+Private Sub SliderG_Change()
+    SliderG_Click
 End Sub
 
 Private Sub SliderG_Click()
     tG = SliderG.value
 End Sub
 
+
+Private Sub SliderR_Change()
+    SliderR_Click
+End Sub
 
 Private Sub SliderR_Click()
     tR = SliderR.value
