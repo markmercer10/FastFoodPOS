@@ -1,5 +1,6 @@
 VERSION 5.00
 Begin VB.Form frmMain 
+   AutoRedraw      =   -1  'True
    BackColor       =   &H0080FFFF&
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Menu Control Center"
@@ -83,6 +84,7 @@ Dim D2 As New frmDisplay
 Private Sub butnDisplay_Click()
     If Not DisplaysShown Then
         Dim q As ADODB.Recordset
+        If Not CheckDBConnection Then Exit Sub
         Set q = db.Execute("SELECT * FROM displays ORDER BY id ASC")
         With q
             If Not (.EOF And .BOF) Then
@@ -114,10 +116,25 @@ Private Sub butnEdit_Click()
 End Sub
 
 Private Sub butnPanes_Click()
+    Unload D1
+    Unload D2
+    DisplaysShown = False
+    
     frmDisplayPanels.Show 1
 End Sub
 
 Private Sub Form_Load()
+    RIDE = (App.EXEName = "MenuDisplay")
     DisplaysShown = False
     ConnectDB
+    PaintGradient Me, 255, 255, 127, 100, 100, 0
+    'PaintGradientH Me, vbYellow, vbBlack
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    DoEvents
+    Unload D1
+    Unload D2
+    DoEvents
+    End
 End Sub

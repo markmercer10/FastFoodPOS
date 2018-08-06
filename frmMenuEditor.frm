@@ -48,6 +48,7 @@ Begin VB.Form frmMenuEditor
       Style           =   1  'Graphical
       TabIndex        =   9
       Top             =   6360
+      Visible         =   0   'False
       Width           =   1695
    End
    Begin VB.CommandButton ButnSave 
@@ -344,14 +345,14 @@ Private Sub ButnSave_Click()
             sec_id = GetLineID(i)
             If sec_id < 0 Then sec_id = 0
             f = Array("id", "title")
-            v = Array(sec_id, MenuList.ListItems(i).Text)
+            v = Array(sec_id, MenuList.ListItems(i).text)
             Upsert "menu_sections", f, v
-            If sec_id = 0 Then sec_id = QuerySectionID(MenuList.ListItems(i).Text)
+            If sec_id = 0 Then sec_id = QuerySectionID(MenuList.ListItems(i).text)
         ElseIf IsItem(i) Then
             item_id = GetLineID(i)
             If item_id < 0 Then item_id = 0
             f = Array("id", "section_id", "sort_id", "name", "price", "small", "medium", "large")
-            v = Array(item_id, sec_id, i, Replace(MenuList.ListItems(i).Text, ITEM_PREFIX, ""), val(MenuList.ListItems(i).SubItems(1)), val(MenuList.ListItems(i).SubItems(2)), val(MenuList.ListItems(i).SubItems(3)), val(MenuList.ListItems(i).SubItems(4)))
+            v = Array(item_id, sec_id, i, Replace(MenuList.ListItems(i).text, ITEM_PREFIX, ""), val(MenuList.ListItems(i).SubItems(1)), val(MenuList.ListItems(i).SubItems(2)), val(MenuList.ListItems(i).SubItems(3)), val(MenuList.ListItems(i).SubItems(4)))
             Upsert "menu_items", f, v
         End If
     Next i
@@ -360,7 +361,7 @@ End Sub
 
 Private Sub CellEdit_KeyPress(KeyAscii As Integer)
     If KeyAscii = 13 Then
-        WriteCell indexDrag, columnClicked, CellEdit.Text
+        WriteCell indexDrag, columnClicked, CellEdit.text
         CellEdit.Visible = False
     End If
 End Sub
@@ -371,12 +372,12 @@ End Sub
 
 Private Sub Form_Load()
     LoadMenu
-    Ghost.FontName = MenuList.Font.name
+    Ghost.fontname = MenuList.Font.name
     Ghost.FontSize = MenuList.Font.Size
 End Sub
 
-Private Sub HR_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    MenuList_MouseUp Button, Shift, x, HR.Top + 100
+Private Sub HR_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    MenuList_MouseUp Button, Shift, X, HR.Top + 100
     CellEdit = HR.Top
 End Sub
 
@@ -390,30 +391,30 @@ Private Sub MenuList_ItemClick(ByVal Item As MSComctlLib.ListItem)
     ButnDeleteItem.Enabled = IsItem(Item.Index)
 End Sub
 
-Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Not MenuList.SelectedItem Is Nothing Then
-        indexDrag = GetClickedIndex(y)
+        indexDrag = GetClickedIndex(Y)
         CellEdit = MenuList.ListItems(indexDrag).Tag
         If Not IsSection(indexDrag) Then dragging = True
     End If
 End Sub
  
-Private Sub MenuList_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub MenuList_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Button <> 0 And dragging Then
-        HR.Top = MenuList.ListItems(GetClickedIndex(y)).Top
-        Ghost.Text = MenuList.ListItems(indexDrag).Text
-        Ghost.Top = y + Ghost.Height / 2
+        HR.Top = MenuList.ListItems(GetClickedIndex(Y)).Top
+        Ghost.text = MenuList.ListItems(indexDrag).text
+        Ghost.Top = Y + Ghost.Height / 2
         HR.Visible = True
         Ghost.Visible = True
     End If
 End Sub
 
-Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    columnClicked = GetClickedColumn(x)
+Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    columnClicked = GetClickedColumn(X)
     If dragging Then
         If Not MenuList.SelectedItem Is Nothing Then
             Dim indexDragTo As Long
-            indexDragTo = GetClickedIndex(y)
+            indexDragTo = GetClickedIndex(Y)
             If Not indexDragTo = indexDrag Then MoveItem indexDrag, indexDragTo
         Else
             'maybe it drags to the bottom?
@@ -448,20 +449,20 @@ Private Function MoveItem(ByVal Item1 As Long, ByVal Item2 As Long)
     Set si = Nothing
 End Function
 
-Private Function GetClickedIndex(ByVal y As Long) As Long
+Private Function GetClickedIndex(ByVal Y As Long) As Long
     Dim HeaderExtraHeight As Long
     ItemHeight = MenuList.ListItems.Item(1).Height
     HeaderExtraHeight = ItemHeight * 0.15
-    GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (y - HeaderExtraHeight) / ItemHeight)
+    GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (Y - HeaderExtraHeight) / ItemHeight)
     If GetClickedIndex > MenuList.ListItems.Count Then GetClickedIndex = MenuList.ListItems.Count
 End Function
 
-Private Function GetClickedColumn(ByVal x As Long) As Long
+Private Function GetClickedColumn(ByVal X As Long) As Long
     Dim i As Long
     GetClickedColumn = 0
-    For i = 1 To MenuList.ColumnHeaders.Count
-        x = x - MenuList.ColumnHeaders(i).Width
-        If x <= 0 Then
+    For i = 1 To MenuList.columnHeaders.Count
+        X = X - MenuList.columnHeaders(i).Width
+        If X <= 0 Then
             GetClickedColumn = i
             Exit For
         End If
@@ -471,16 +472,16 @@ End Function
 Private Sub OpenCellEditor(ByVal row As Long, ByVal col As Byte)
     If col = 0 Or Not LineExists(row) Then Exit Sub
     CellEdit.Top = MenuList.ListItems(row).Top
-    CellEdit.Left = MenuList.ColumnHeaders(col).Left + 30
-    CellEdit.Width = MenuList.ColumnHeaders(col).Width
+    CellEdit.Left = MenuList.columnHeaders(col).Left + 30
+    CellEdit.Width = MenuList.columnHeaders(col).Width
     If col = 1 Then
         If IsSection(row) Then
-            CellEdit.Text = MenuList.ListItems(row).Text
+            CellEdit.text = MenuList.ListItems(row).text
         Else
-            CellEdit.Text = Replace(MenuList.ListItems(row).Text, ITEM_PREFIX, "")
+            CellEdit.text = Replace(MenuList.ListItems(row).text, ITEM_PREFIX, "")
         End If
     Else
-        CellEdit.Text = MenuList.ListItems(row).SubItems(col - 1)
+        CellEdit.text = MenuList.ListItems(row).SubItems(col - 1)
     End If
     CellEdit.Visible = True
     CellEdit.SetFocus
@@ -491,9 +492,9 @@ End Sub
 Private Sub WriteCell(ByVal row As Long, ByVal col As Byte, ByVal value As String)
     If col = 1 Then
         If IsSection(row) Then
-            MenuList.ListItems(row).Text = value
+            MenuList.ListItems(row).text = value
         Else
-            MenuList.ListItems(row).Text = ITEM_PREFIX & value
+            MenuList.ListItems(row).text = ITEM_PREFIX & value
         End If
     Else
         MenuList.ListItems(row).SubItems(col - 1) = FormatAmount(val(value))
@@ -582,6 +583,7 @@ Private Sub LoadMenu()
     Dim i As ADODB.Recordset
     MenuList.ListItems.Clear
     
+    If Not CheckDBConnection Then Exit Sub
     Set s = db.Execute("SELECT * FROM menu_sections")
     With s
         If Not (.EOF And .BOF) Then
@@ -610,6 +612,7 @@ End Sub
 Private Function QuerySectionID(ByVal Section As String) As Long
     Dim q As ADODB.Recordset
     QuerySectionID = -1
+    If Not CheckDBConnection Then Exit Sub
     Set q = db.Execute("SELECT * FROM menu_sections WHERE Title = """ & Section & """")
     With q
         If Not (.EOF And .BOF) Then

@@ -1,7 +1,8 @@
 frmMain = 50, 50, 1369, 728, , 429, 336, 1194, 573, C
 frmMenuEditor = 75, 75, 1513, 634, , 412, 160, 1407, 838, C
-modDatabaseBasic = 125, 125, 1563, 684, C
-modmain = 511, 120, 1624, 876, C
-frmDisplayPanels = 40, 43, 1359, 997, , 217, 216, 1649, 996, C
-frmColorSelect = 266, 231, 1585, 909, , 0, 0, 503, 493, C
-PanelBlock = 0, 0, 0, 0, C
+modDatabaseBasic = 125, 125, 1563, 684, 
+modmain = 373, 53, 1486, 809, 
+frmDisplayPanels = 261, 4, 1580, 958, , 20, 244, 1452, 1024, C
+frmColorSelect = 266, 231, 1585, 909, C, 0, 0, 503, 493, C
+PanelBlock = 153, 0, 1490, 895, 
+frmDisplay = 90, 277, 1409, 951, , 250, 250, 1569, 928, C

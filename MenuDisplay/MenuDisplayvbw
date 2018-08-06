@@ -1,0 +1,8 @@
+frmMain = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+frmMenuEditor = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+modDatabaseBasic = 0, 0, 0, 0, C
+modmain = 0, 0, 0, 0, C
+frmDisplayPanels = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+frmColorSelect = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+PanelBlock = 0, 0, 0, 0, C
+frmDisplay = 0, 0, 0, 0, C, 0, 0, 0, 0, C

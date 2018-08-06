@@ -16,7 +16,7 @@ Sub ConnectDB()
         Open App.Path & "\connection.txt" For Input As #1
             Do Until EOF(1)
                 Line Input #1, fileline
-                If left$(fileline, Len(prefix)) = prefix Then
+                If Left$(fileline, Len(prefix)) = prefix Then
                     db.ConnectionString = Trim(Mid$(fileline, Len(prefix) + 2))
                     Exit Do
                 End If
@@ -45,6 +45,7 @@ Function sqlTime(val As Variant) As String
 End Function
 
 Sub Delete(ByVal Table As String, ByVal primaryKeyField As String, ByVal id As Long)
+    If Not CheckDBConnection Then Exit Sub
     db.Execute "DELETE FROM " & Table & " WHERE " & primaryKeyField & " = " & id
 End Sub
 
@@ -52,6 +53,7 @@ Sub Upsert(ByVal Table As String, ByRef fields As Variant, ByRef values As Varia
     ' fields and values are arrays of strings but vb would NOT allow me to assign those arrays in a single line without making them variants!!!!!!
     Dim sql As String
     Dim i As Long
+    If Not CheckDBConnection Then Exit Sub
     If LBound(fields) <> 0 Or LBound(values) <> 0 Then
         MsgBox "the first index in the array must be 0 and this must be the primary key of the table"
         Exit Sub
@@ -88,6 +90,7 @@ Sub Upsert_Broken(ByVal Table As String, ByRef fields As Variant, ByRef values A
     ' fields and values are arrays of strings but vb would NOT allow me to assign those arrays in a single line without making them variants!!!!!!
     Dim sql As String
     Dim i As Long
+    If Not CheckDBConnection Then Exit Sub
     If LBound(fields) <> 0 Or LBound(values) <> 0 Then
         MsgBox "the first index in the array must be 0 and this must be the primary key of the table"
         Exit Sub
@@ -123,4 +126,18 @@ Sub Upsert_Broken(ByVal Table As String, ByRef fields As Variant, ByRef values A
     db.Execute sql
 End Sub
 
-
+Public Function CheckDBConnection() As Boolean
+    On Error GoTo err
+    db.Execute "SHOW DATABASES;"
+    CheckDBConnection = True
+    Exit Function
+    
+err:
+    If InStr(1, LCase$(err.Description), "gone away") > 0 Then
+        ConnectDB
+    Else
+        MsgBox err.Description
+        CheckDBConnection = False
+        Exit Function
+    End If
+End Function
