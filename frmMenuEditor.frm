@@ -376,6 +376,11 @@ Private Sub Form_Load()
     Ghost.FontSize = MenuList.Font.Size
 End Sub
 
+Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    HR.Visible = False
+    Ghost.Visible = False
+End Sub
+
 Private Sub HR_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
     MenuList_MouseUp Button, Shift, X, HR.Top + 100
     CellEdit = HR.Top
@@ -394,18 +399,29 @@ End Sub
 Private Sub MenuList_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Not MenuList.SelectedItem Is Nothing Then
         indexDrag = GetClickedIndex(Y)
-        CellEdit = MenuList.ListItems(indexDrag).Tag
-        If Not IsSection(indexDrag) Then dragging = True
+        If indexDrag > 1 Then
+            CellEdit = MenuList.ListItems(indexDrag).Tag
+            If Not IsSection(indexDrag) Then dragging = True
+        End If
     End If
 End Sub
  
 Private Sub MenuList_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Button <> 0 And dragging Then
-        HR.Top = MenuList.ListItems(GetClickedIndex(Y)).Top
+        Dim i As Long
+        i = GetClickedIndex(Y)
+        If i <= 0 Then
+            HR.Top = MenuList.ListItems(MenuList.ListItems.Count).Top + MenuList.ListItems(MenuList.ListItems.Count).Height
+        Else
+            HR.Top = MenuList.ListItems(GetClickedIndex(Y)).Top
+        End If
         Ghost.text = MenuList.ListItems(indexDrag).text
         Ghost.Top = Y + Ghost.Height / 2
         HR.Visible = True
         Ghost.Visible = True
+    Else
+        HR.Visible = False
+        Ghost.Visible = False
     End If
 End Sub
 
@@ -415,9 +431,12 @@ Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, X As Single, Y
         If Not MenuList.SelectedItem Is Nothing Then
             Dim indexDragTo As Long
             indexDragTo = GetClickedIndex(Y)
-            If Not indexDragTo = indexDrag Then MoveItem indexDrag, indexDragTo
+            If indexDragTo = -1 Then
+                MoveItem indexDrag, MenuList.ListItems.Count + 1
+            Else
+                If Not indexDragTo = indexDrag Then MoveItem indexDrag, indexDragTo
+            End If
         Else
-            'maybe it drags to the bottom?
         End If
         dragging = False
     End If
@@ -426,9 +445,9 @@ Private Sub MenuList_MouseUp(Button As Integer, Shift As Integer, X As Single, Y
 End Sub
 
 Private Function MoveItem(ByVal Item1 As Long, ByVal Item2 As Long)
-    If Not LineExists(Item1) Or Not LineExists(Item2) Then Exit Function
     If Item2 = 1 Then Item2 = 2
     If Item2 > Item1 Then Item2 = Item2 - 1
+    If Not LineExists(Item1) Or Not LineExists(Item2) Then Exit Function
     Dim oli As ListItem
     Dim nli As ListItem
     Dim si As ListSubItem
@@ -454,7 +473,7 @@ Private Function GetClickedIndex(ByVal Y As Long) As Long
     ItemHeight = MenuList.ListItems.Item(1).Height
     HeaderExtraHeight = ItemHeight * 0.15
     GetClickedIndex = Int((MenuList.GetFirstVisible.Index - 1) + (Y - HeaderExtraHeight) / ItemHeight)
-    If GetClickedIndex > MenuList.ListItems.Count Then GetClickedIndex = MenuList.ListItems.Count
+    If GetClickedIndex > MenuList.ListItems.Count Then GetClickedIndex = -1 'MenuList.ListItems.Count
 End Function
 
 Private Function GetClickedColumn(ByVal X As Long) As Long

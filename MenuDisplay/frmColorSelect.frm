@@ -372,8 +372,8 @@ End Sub
 Private Sub Command1_Click()
 End Sub
 
-Function convertColorRGB_selector(ByVal R As Double, ByVal g As Double, ByVal b As Double) As Long
-    convertColorRGB_selector = (CLng(R * &HFF))
+Function convertColorRGB_selector(ByVal r As Double, ByVal g As Double, ByVal b As Double) As Long
+    convertColorRGB_selector = (CLng(r * &HFF))
     convertColorRGB_selector = convertColorRGB_selector + (CLng(g * &HFF)) * 256
     convertColorRGB_selector = convertColorRGB_selector + (CLng(b * &HFF)) * 65536
 End Function
@@ -471,12 +471,15 @@ End Sub
 Private Sub Timer1_Timer()
     Dim i As Long
     Dim j As Long
-    Dim R As Double
+    Dim r0 As Double
+    Dim g0 As Double
+    Dim b0 As Double
+    Dim r As Double
     Dim g As Double
     Dim b As Double
     Dim s As Double
     Dim bigSwatchWidth As Long
-    Dim bright As Double
+    Dim brightenDarken As Double
     Timer1.Enabled = False
     BigSwatch.Visible = False
     BigSwatch.AutoRedraw = True
@@ -487,38 +490,57 @@ Private Sub Timer1_Timer()
     colorChange
     
     For i = 0 To bigSwatchWidth
+        r0 = Sin(((i / bigSwatchWidth) + (3 / 12#)) * 2# * 3.14159) + 0.5
+        If r0 < 0 Then r0 = 0
+        If r0 > 1 Then r0 = 1
+        g0 = Sin(((i / bigSwatchWidth) - (1 / 12#)) * 2# * 3.14159) + 0.5
+        If g0 < 0 Then g0 = 0
+        If g0 > 1 Then g0 = 1
+        b0 = Sin(((i / bigSwatchWidth) - (5 / 12#)) * 2# * 3.14159) + 0.5
+        If b0 < 0 Then b0 = 0
+        If b0 > 1 Then b0 = 1
         For j = 0 To BigSwatch.Height
-            R = Sin(((i / bigSwatchWidth) + (3 / 12#)) * 2# * 3.14159) + 0.5
-            If R < 0 Then R = 0
-            If R > 1 Then R = 1
-            g = Sin(((i / bigSwatchWidth) - (1 / 12#)) * 2# * 3.14159) + 0.5
-            If g < 0 Then g = 0
-            If g > 1 Then g = 1
-            b = Sin(((i / bigSwatchWidth) - (5 / 12#)) * 2# * 3.14159) + 0.5
-            If b < 0 Then b = 0
-            If b > 1 Then b = 1
+            r = r0
+            g = g0
+            b = b0
             
+            'old method (trigonometric)
             s = (Sin(j / BigSwatch.Height * 3.14159) ^ 0.5) * (Sin(j / BigSwatch.Height * 3.14159) ^ 2)
-            's = s ^ 2
-            bright = 1 - j / BigSwatch.Height
-            R = (R * s + bright * (1 - s))
-            g = (g * s + bright * (1 - s))
-            b = (b * s + bright * (1 - s))
-            BigSwatch.PSet (i, j), convertColorRGB_selector(R, g, b)
+            brightenDarken = 1 - j / BigSwatch.Height
+            r = (r * s + brightenDarken * (1 - s))
+            g = (g * s + brightenDarken * (1 - s))
+            b = (b * s + brightenDarken * (1 - s))
+            
+            'combination of old and new method (linear + weighted average)
+            brightenDarken = 1 - j / BigSwatch.Height * 2
+            r = (r * 3 + Clamp(r0 + brightenDarken, 0, 1)) / 4
+            g = (g * 3 + Clamp(g0 + brightenDarken, 0, 1)) / 4
+            b = (b * 3 + Clamp(b0 + brightenDarken, 0, 1)) / 4
+            
+            BigSwatch.PSet (i, j), convertColorRGB_selector(r, g, b)
         Next j
     Next i
     For i = bigSwatchWidth + 1 To BigSwatch.Width
         For j = 0 To BigSwatch.Height
-            R = 1 - j / BigSwatch.Height
-            g = R
-            b = R
-            BigSwatch.PSet (i, j), convertColorRGB_selector(R, g, b)
+            r = 1 - j / BigSwatch.Height
+            g = r
+            b = r
+            BigSwatch.PSet (i, j), convertColorRGB_selector(r, g, b)
         Next j
     Next i
     BigSwatch.Visible = True
     BigSwatch.AutoRedraw = False
 End Sub
 
+Private Function Clamp(ByVal number As Double, ByVal min As Double, ByVal max As Double)
+    If number < min Then
+        Clamp = min
+    ElseIf number > max Then
+        Clamp = max
+    Else
+        Clamp = number
+    End If
+End Function
 
 Private Sub tR_Change()
     If tR >= 0 And tR <= 255 Then SliderR = tR

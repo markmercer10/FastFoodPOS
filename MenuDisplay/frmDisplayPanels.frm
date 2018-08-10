@@ -1600,7 +1600,7 @@ Private Sub BlockSelected(ByVal Index As Long)
         opStretch.value = BlockSettings(Index).Stretch
         opFit.value = Not BlockSettings(Index).Stretch
         PaintPic BlockSettings(SelectedBlock).PicturePath, PicturePreview, False
-        tText = BlockSettings(Index).tText
+        blockText = BlockSettings(Index).tText
         tFont.ListIndex = GetFontIndex(BlockSettings(Index).tFontName)
         tFontSize = BlockSettings(Index).tFontSize
         tFontBold = -CLng(BlockSettings(Index).tFontBold)
